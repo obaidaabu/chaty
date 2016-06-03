@@ -6,23 +6,34 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ionic-material', 'ionMdInput', 'firebase', 'ngCordova'])
 
-.run(function($ionicPlatform,$state) {
-    $ionicPlatform.ready(function() {
-        // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-        // for form inputs)
-        if (window.cordova && window.cordova.plugins.Keyboard) {
-            cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-        }
-        if (window.StatusBar) {
-            // org.apache.cordova.statusbar required
-            StatusBar.styleDefault();
-        }
+	.run(function ($ionicPlatform, $state) {
+		$ionicPlatform.ready(function () {
+			// Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+			// for form inputs)
+			if (window.cordova && window.cordova.plugins.Keyboard) {
+				cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+			}
+			if (window.StatusBar) {
+				// org.apache.cordova.statusbar required
+				StatusBar.styleDefault();
+			}
+			//window.localStorage.clear();
+			if (window.localStorage['user']) {
+				var user = angular.fromJson(window.localStorage['user']);
+				var ref = new Firebase("https://chatoi.firebaseio.com");
+				debugger
+				ref.authWithCustomToken(user.fireToken, function (error, authData) {
 
-        if(window.localStorage['user']){
-            $state.go("app.profile");
-        }
-    });
-})
+					if (error) {
+						console.log("Login Failed!", error);
+					} else {
+						$state.go("app.profile");
+					}
+				});
+
+			}
+		});
+	})
 
 .config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
 
