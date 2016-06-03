@@ -194,7 +194,7 @@ angular.module('starter.controllers', [])
 
         //});
         $scope.sendMessage = function () {
-            debugger;
+
             var otherUrl = "https://chatoi.firebaseio.com/chats/" + $scope.conversationId.split("-")[0] + "/" + userId + '-' + $scope.conversationId.split("-")[1];
             var ref2, ref1;
             if (isFirstMessage) {
@@ -234,11 +234,13 @@ angular.module('starter.controllers', [])
             delete $scope.messageContent;
         }
     })
-    .controller('MessagesCtrl', function($scope, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService) {
+    .controller('MessagesCtrl', function($scope ,$state, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService) {
         $scope.$parent.showHeader();
         $scope.$parent.clearFabs();
         $scope.$parent.setHeaderFab('left');
-
+        $scope.goToChat = function (message) {
+            $state.go('app.chat', {conversationId: message.conversationId ,lastMessageKey:message.lastMessageKey})
+        }
         // Delay expansion
         $timeout(function() {
             $scope.isExpanded = true;
@@ -304,7 +306,6 @@ angular.module('starter.controllers', [])
                             }
 
                             var indexx = common.indexOfConv($scope.messages,conversationId);
-
                             if(indexx===-1) {
                                 $scope.messages.push({
                                     conversationId: conversationId, lastMessage: lastMessage,lastMessageKey:lastMessageKey,

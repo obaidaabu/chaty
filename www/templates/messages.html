@@ -2,7 +2,7 @@
     <ion-content ng-class="{expanded:isExpanded}">
         <div class="content has-header">
             <div class="list animate-fade-slide-in-right">
-                <a href="#/app/profile" class="item item-avatar item-icon-right" ng-repeat="message in messages">
+                <a ng-click="goToChat(message)" class="item item-avatar item-icon-right" ng-repeat="message in messages">
                     <img src="img/jon-snow.jpg">
                     <h2>{{message.userName}}</h2>
                     <p>{{message.lastMessage}}</p>
