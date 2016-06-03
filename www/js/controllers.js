@@ -330,7 +330,7 @@ angular.module('starter.controllers', [])
         });
 })
 
-    .controller('ProfileCtrl', function($scope, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk,SubjectService) {
+    .controller('ProfileCtrl', function($scope,$ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService) {
         $scope.$parent.showHeader();
         $scope.$parent.clearFabs();
         $scope.isExpanded = false;
@@ -357,41 +357,6 @@ angular.module('starter.controllers', [])
                 selector: '.slide-up'
             });
         }, 300);
-
-        $scope.createSubject= function(){
-            alert("s");
-        }
-
-
-    // Set Ink
-    ionicMaterialInk.displayEffect();
-})
-
-    .controller('SubjectsCtrl', function($scope,$ionicPopup, $state, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk,SubjectService,ConfigurationService) {
-        $scope.$parent.showHeader();
-        $scope.$parent.clearFabs();
-        $scope.isExpanded = true;
-        $scope.$parent.setExpanded(true);
-        $scope.$parent.setHeaderFab('right');
-        $scope.subjects= [];
-        SubjectService.GetSubjects(false)
-            .then(function (subjects) {
-
-                angular.copy(subjects, $scope.subjects);
-                $timeout(function() {
-                    ionicMaterialMotion.fadeSlideIn({
-                        selector: '.animate-fade-slide-in .item'
-                    });
-                }, 200);
-            }, function (err) {
-            });
-
-        $scope.goToChat = function (subject) {
-
-            var userName = subject.user.first_name + " " + subject.user.last_name;
-            $state.go('app.chat', {conversationId: subject.user._id + "-" + subject._id,userName:userName ,subjectName:subject.title})
-        }
-        ionicMaterialInk.displayEffect();
 
         $scope.createSubject = function() {
             $scope.subject ={
@@ -430,12 +395,9 @@ angular.module('starter.controllers', [])
                     $scope.subject.user = res;
                     SubjectService.CreateSubject($scope.subject)
                         .then(function () {
+                            debugger;
                             $scope.subjects.push($scope.subject);
-                            $timeout(function() {
-                                ionicMaterialMotion.fadeSlideIn({
-                                    selector: '.animate-fade-slide-in .item'
-                                });
-                            }, 200);
+
                         }, function (err) {
                         });
 
@@ -444,6 +406,39 @@ angular.module('starter.controllers', [])
             });
 
         };
+
+
+    // Set Ink
+    ionicMaterialInk.displayEffect();
+})
+
+    .controller('SubjectsCtrl', function($scope, $state, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk,SubjectService) {
+        $scope.$parent.showHeader();
+        $scope.$parent.clearFabs();
+        $scope.isExpanded = true;
+        $scope.$parent.setExpanded(true);
+        $scope.$parent.setHeaderFab('right');
+        $scope.subjects= [];
+        SubjectService.GetSubjects(false)
+            .then(function (subjects) {
+
+                angular.copy(subjects, $scope.subjects);
+                $timeout(function() {
+                    ionicMaterialMotion.fadeSlideIn({
+                        selector: '.animate-fade-slide-in .item'
+                    });
+                }, 200);
+            }, function (err) {
+            });
+
+        $scope.goToChat = function (subject) {
+
+            var userName = subject.user.first_name + " " + subject.user.last_name;
+            $state.go('app.chat', {conversationId: subject.user._id + "-" + subject._id,userName:userName ,subjectName:subject.title})
+        }
+        ionicMaterialInk.displayEffect();
+
+
 
 })
 
