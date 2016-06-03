@@ -68,7 +68,7 @@ angular.module('starter.services', [])
             }
         }
     })
-    .factory('UserService', function ($http, $log, $q, ConfigurationService) {
+    .factory('UserService', function ($http, $log, $q ,$cordovaFacebook, ConfigurationService) {
         return {
 
             CreateUser: function (user) {

@@ -48,7 +48,7 @@ angular.module('starter.controllers', [])
                 })
             }else{
                 var user ={
-                    fbToken: 'EAAZAMbMtmoBIBAAMQquZBYND6oZAGSFA5kHHhd8ERy0XnzfkcPRius9dTySs7GkYQfDIvxVm9HMBlvVxEAskDLTQ8N08pe18GZBgzFmssrU9zrfZCj8aKE13bySp9vdbMwartamZCut5bv5Cx3cU2817yfw7eZCDLfKZBOGqG1CcBL71VNlJWolNxsrxrVmPiEwz6IbJ9aukOAZDZD',
+                    fbToken: 'EAAZAMbMtmoBIBALKW5FUrIn9kQlz8a2EEXHjidB5hCuV9BVEn2Kye3OZBgS9bUO5AtWlILv2tT8kjoqGZA1dCgbhvK5e2RxbLxVyFpZBIRfvUrYT4jbMLZBhD0OxG7aCsP5JYOWApRyaufDW0terI1ZClY1uz5rMzzHYk3VJL01gZDZD',
                     notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
                 }
@@ -150,6 +150,7 @@ angular.module('starter.controllers', [])
     .controller('ChatCtrl', function($scope, $state, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService) {
         $scope.conversationId = $state.params.conversationId;
         $scope.lastMessageKey = $state.params.lastMessageKey;
+        $scope.messages = [];
         var userDetails = ConfigurationService.UserDetails();
         var userId = userDetails._id;
         var userName = userDetails.first_name + " " + userDetails.last_name;
@@ -279,7 +280,7 @@ angular.module('starter.controllers', [])
 
                         if (window.localStorage['messages']){
                             var localMessages = angular.fromJson(window.localStorage['messages']);
-                            debugger;
+
                             var indexx = common.indexOfConv(localMessages,conversationId);
                             var readMessage = true;
                             if(indexx===-1) {
@@ -303,6 +304,7 @@ angular.module('starter.controllers', [])
                             }
 
                             var indexx = common.indexOfConv($scope.messages,conversationId);
+
                             if(indexx===-1) {
                                 $scope.messages.push({
                                     conversationId: conversationId, lastMessage: lastMessage,lastMessageKey:lastMessageKey,
@@ -323,6 +325,11 @@ angular.module('starter.controllers', [])
                         });
 
                     }, x);
+                    $timeout(function() {
+                        ionicMaterialMotion.fadeSlideInRight({
+                            startVelocity: 3000
+                        });
+                    }, 700);
                 })
                 .catch(function (error) {
                     console.log("Error:", error);
