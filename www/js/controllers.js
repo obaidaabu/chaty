@@ -233,26 +233,27 @@ angular.module('starter.controllers', [])
             delete $scope.messageContent;
         }
     })
-.controller('MessagesCtrl', function($scope, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService) {
-    // Set Header
-    $scope.$parent.showHeader();
-    $scope.$parent.clearFabs();
-    $scope.$parent.setHeaderFab('left');
+    .controller('MessagesCtrl', function($scope, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService) {
+        $scope.$parent.showHeader();
+        $scope.$parent.clearFabs();
+        $scope.$parent.setHeaderFab('left');
 
-    // Delay expansion
-    $timeout(function() {
-        $scope.isExpanded = true;
-        $scope.$parent.setExpanded(true);
-    }, 300);
+        // Delay expansion
+        $timeout(function() {
+            $scope.isExpanded = true;
+            $scope.$parent.setExpanded(true);
+        }, 300);
 
-    // Set Motion
-    ionicMaterialMotion.fadeSlideInRight();
+        // Set Motion
+        ionicMaterialMotion.fadeSlideInRight();
 
-    // Set Ink
-    ionicMaterialInk.displayEffect();
-        var userId = ConfigurationService.UserDetails()._id;
-        var ref = new Firebase("https://chatoi.firebaseio.com/chats/" + window.localStorage['userId']);
+        // Set Ink
+        ionicMaterialInk.displayEffect();
+        var userDetails = ConfigurationService.UserDetails();
+        var userId = userDetails._id;
+        var ref = new Firebase("https://chatoi.firebaseio.com/chats/" + userId);
         ref.on("child_added", function(snapshot) {
+
             var user = snapshot.val();
 
 
@@ -264,9 +265,8 @@ angular.module('starter.controllers', [])
             list.$loaded()
                 .then(function (x) {
 
-
                     $scope.messages = [];
-                    $rootScope.rootChatCounter=$rootScope.rootChatCounter+1;
+
                     angular.forEach(x, function (value, key) {
 
                         var conversationId = value.$id;
@@ -280,7 +280,7 @@ angular.module('starter.controllers', [])
                         if (window.localStorage['messages']){
                             var localMessages = angular.fromJson(window.localStorage['messages']);
                             debugger;
-                            var indexx=indexOfConv(localMessages,conversationId);
+                            var indexx = common.indexOfConv(localMessages,conversationId);
                             var readMessage = true;
                             if(indexx===-1) {
                                 readMessage = false;
@@ -302,7 +302,7 @@ angular.module('starter.controllers', [])
 
                             }
 
-                            var indexx=indexOfConv($scope.messages,conversationId);
+                            var indexx = common.indexOfConv($scope.messages,conversationId);
                             if(indexx===-1) {
                                 $scope.messages.push({
                                     conversationId: conversationId, lastMessage: lastMessage,lastMessageKey:lastMessageKey,
@@ -341,8 +341,8 @@ angular.module('starter.controllers', [])
 
         SubjectService.GetSubjects(true)
             .then(function (subjects) {
+                $scope.subjects = subjects;
 
-                angular.copy(subjects, $scope.subjects);
                 $timeout(function() {
                     ionicMaterialMotion.fadeSlideInRight({
                         startVelocity: 3000
@@ -391,13 +391,18 @@ angular.module('starter.controllers', [])
             myPopup.then(function(res) {
 
                 if(res){
-                    debugger;
+
                     $scope.subject.user = res;
                     SubjectService.CreateSubject($scope.subject)
                         .then(function () {
-                            debugger;
-                            $scope.subjects.push($scope.subject);
 
+
+                            $timeout(function() {
+                                $scope.subjects.push($scope.subject);
+                                ionicMaterialMotion.fadeSlideInRight({
+                                    startVelocity: 3000
+                                });
+                            }, 700);
                         }, function (err) {
                         });
 
