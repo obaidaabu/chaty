@@ -7,7 +7,7 @@
                     <div ng-click="goToChat(message)">
                         <h2>{{message.userName}}</h2>
                         <p>{{message.lastMessage}}</p>
-                        <i ng-click="goToChat(message)" class="icon ion-chatbubble muted"></i>
+                        <i ng-class="message.readMessage ? 'muted' : (!message.readMessage ? 'message-read' : 'muted')" ng-click="goToChat(message)" class="icon ion-chatbubble"></i>
                     </div>
 
                 </a>

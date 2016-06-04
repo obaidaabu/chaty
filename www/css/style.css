@@ -122,31 +122,7 @@ p {
     direction: rtl;
     padding-top: 5px;
 }
-.read-message{
-    position: absolute;
-    bottom: 0px;
-    right: 0;
-    max-width: 40px;
-    max-height: 40px;
-    width: 100%;
-    height: 100%;
 
-}
-.online-offline{
-    position: absolute;
-    bottom: 0px;
-    left: 37px;
-    max-width: 40px;
-    max-height: 40px;
-    width: 100%;
-    height: 100%;
-}
-.online-circle{
-    color: green;
-}
-.offline-circle{
-    color: red ;
-}
 .popup{
    width: 90% !important;
 }
@@ -174,4 +150,7 @@ p {
 }
 .subject-new-message:before{
     font-size: 30px !important;
+}
+.message-read{
+    color: #9FCCAC !important;
 }

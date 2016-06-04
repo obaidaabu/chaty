@@ -10,55 +10,6 @@ angular.module('starter.controllers', [])
 		$scope.hasHeaderFabLeft = false;
 		$scope.hasHeaderFabRight = false;
 		$scope.userDetails = ConfigurationService.UserDetails();
-		$scope.fbLogin = function () {
-
-			if (window.cordova) {
-				UserService.FBlogin().then(function success(s) {
-
-					if (window.cordova && typeof window.plugins.OneSignal != 'undefined') {
-						window.plugins.OneSignal.getIds(function (ids) {
-							window.localStorage['notification_token'] = ids.userId;
-
-						});
-					}
-					var fbData = angular.fromJson(window.localStorage['fbData']);
-					var user = {
-						fbToken: fbData['accessToken'],
-						notification_token: window.localStorage['notification_token']
-						// fbUserId: fbData['userID'],
-						// first_name: window.localStorage['fbFirstName'],
-						// last_name: window.localStorage['fbLastName'],
-
-					}
-
-					UserService.CreateUser(user)
-						.then(function (user) {
-							window.localStorage['userId'] = user._id;
-							$state.go("tab.subjects");
-						}, function (err) {
-						});
-					//alert($scope.FbName)
-
-
-				}, function error(msg) {
-					console.log("Error while performing Facebook login", msg);
-				})
-			} else {
-				var user = {
-					fbToken: 'EAAZAMbMtmoBIBAAMQquZBYND6oZAGSFA5kHHhd8ERy0XnzfkcPRius9dTySs7GkYQfDIvxVm9HMBlvVxEAskDLTQ8N08pe18GZBgzFmssrU9zrfZCj8aKE13bySp9vdbMwartamZCut5bv5Cx3cU2817yfw7eZCDLfKZBOGqG1CcBL71VNlJWolNxsrxrVmPiEwz6IbJ9aukOAZDZD',
-					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
-
-				}
-
-				UserService.CreateUser(user)
-					.then(function (user) {
-						window.localStorage['user'] = angular.toJson(user);
-						$state.go("app.subjects");
-					}, function (err) {
-					});
-			}
-
-		};
 		$scope.updateUserDetails = function () {
 
 			var user = {
@@ -199,7 +150,7 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAAZAMbMtmoBIBAEQo0KOr8rTkZBHjQZBnoOPV4V454WbZCj7S6D6smDTlIuaPu8CHsGWfIEQWgnu7yBZCnrlPEReYuQwnzyVhkctDjHGxBWQf6ZAmijvbd6VWOhzEDuE8mlwimZBjZBizZC1cQhtLf76767ulBgORtXY0BZCdNbi4aZB6JflI1BwQCn',
+					fbToken: 'EAAZAMbMtmoBIBAGFVkLXHZCIlMGUAFiwefxKc0uRkBA3h0rcsm7sYKZCY96hrUOZCSsWzyTKlgTvCOZCJBkGP58AfZB85GDn4Q8WkAGpOh1K1IH1lSQlzKdkd1SVBzl2cfZBsA28KX6WlEMZALXCCQZA9udQ8MObYsOmQpNY8bfEhHQZDZD',
 					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
 				}
@@ -243,12 +194,20 @@ angular.module('starter.controllers', [])
 		if (window.localStorage['messages']) {
 			var localMessages = angular.fromJson(window.localStorage['messages']);
 			var messagIndexx = common.indexOfConv(localMessages, $scope.conversationId);
+			var messageToPush = {
+				conversationId: $scope.conversationId,
+				lastMessageKey: $scope.lastMessageKey
+			}
 			if (messagIndexx == -1) {
+
+				localMessages.push(messageToPush)
 			}
 			else {
-				//if(localMessages[messagIndexx].lastMessageKey !=lastMessageKey){
-				//}
+				if(localMessages[messagIndexx].lastMessageKey !== $scope.lastMessageKey){
+					localMessages[messagIndexx] = messageToPush;
+				}
 			}
+			window.localStorage['messages'] = angular.toJson(localMessages);
 		} else {
 			var messagesToPush = [];
 			var messageToPush = {
@@ -288,7 +247,6 @@ angular.module('starter.controllers', [])
 				ref1 = new Firebase(myUrl);
 				var newMessageRef1 = ref1.push();
                 ref1.set({
-					messages: [{body: $scope.messageContent, sender: $scope.userId}],
 					userName: chatDetails.userName,
 					subjectName: chatDetails.subjectName,
 					fbPhotoUrl:chatDetails.fbPhotoUrl
@@ -296,7 +254,6 @@ angular.module('starter.controllers', [])
 				
 				var newMessageRef2 = ref2.push();
                 ref2.set({
-					messages: [{body: $scope.messageContent, sender: $scope.userId}],
 					userName:userName,
 					subjectName: chatDetails.subjectName,
 					fbPhotoUrl: userDetails.fbPhotoUrl
@@ -304,7 +261,7 @@ angular.module('starter.controllers', [])
 
 				isFirstMessage = false;
 			}
-			else {
+
 				ref2 = new Firebase(otherUrl + "/messages");
 				ref1 = new Firebase(myUrl + "/messages");
 				var newMessageRef1 = ref1.push();
@@ -320,7 +277,7 @@ angular.module('starter.controllers', [])
 						body: $scope.messageContent,
 						sender: $scope.userId
 					});
-			}
+
 			var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
 			userRef.on("value", function (userSnapshot) {
 				if (userSnapshot.val() == 'offline') {
@@ -347,6 +304,7 @@ angular.module('starter.controllers', [])
 		$scope.$parent.clearFabs();
 		$scope.$parent.setHeaderFab('left');
 		$scope.goToChat = function (message) {
+
             var messageDetails = {
                 conversationId: message.conversationId,
                 lastMessageKey: message.lastMessageKey
@@ -383,7 +341,6 @@ angular.module('starter.controllers', [])
 
 			var user = snapshot.val();
 
-
 		});
 
 		var list = $firebaseArray(ref)
@@ -396,22 +353,28 @@ angular.module('starter.controllers', [])
 					angular.forEach(x, function (value, key) {
 
 						var conversationId = value.$id;
-
 						var messagesArray = Object.getOwnPropertyNames(value.messages);
+
 						var lastMessageKey = messagesArray[messagesArray.length - 1];
 
+
+
 						var lastMessage = value.messages[lastMessageKey].body;
+
 						var createrId = conversationId.split("-")[0];
 
 						if (window.localStorage['messages']) {
 							var localMessages = angular.fromJson(window.localStorage['messages']);
 
-							var indexx = common.indexOfConv(localMessages, conversationId);
+							var messagIndexx = common.indexOfConv(localMessages, conversationId);
 							var readMessage = true;
-							if (indexx === -1) {
+							if (messagIndexx === -1) {
 								readMessage = false;
 							}
 							else {
+								if(localMessages[messagIndexx].lastMessageKey !=lastMessageKey){
+									readMessage = false;
+								}
 							}
 						} else {
 							readMessage = false;
