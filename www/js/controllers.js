@@ -11,7 +11,7 @@ angular.module('starter.controllers', [])
         $scope.hasHeaderFabRight = false;
         $scope.userDetails=ConfigurationService.UserDetails();
         $scope.fbLogin = function() {
-
+debugger
             if(window.cordova ){
                 UserService.FBlogin().then(function success(s) {
 
@@ -46,7 +46,7 @@ angular.module('starter.controllers', [])
                 })
             }else{
                 var user ={
-                    fbToken: 'EAAZAMbMtmoBIBALKW5FUrIn9kQlz8a2EEXHjidB5hCuV9BVEn2Kye3OZBgS9bUO5AtWlILv2tT8kjoqGZA1dCgbhvK5e2RxbLxVyFpZBIRfvUrYT4jbMLZBhD0OxG7aCsP5JYOWApRyaufDW0terI1ZClY1uz5rMzzHYk3VJL01gZDZD',
+                    fbToken: 'EAAZAMbMtmoBIBAAMQquZBYND6oZAGSFA5kHHhd8ERy0XnzfkcPRius9dTySs7GkYQfDIvxVm9HMBlvVxEAskDLTQ8N08pe18GZBgzFmssrU9zrfZCj8aKE13bySp9vdbMwartamZCut5bv5Cx3cU2817yfw7eZCDLfKZBOGqG1CcBL71VNlJWolNxsrxrVmPiEwz6IbJ9aukOAZDZD',
                     notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
                 }
@@ -136,6 +136,11 @@ angular.module('starter.controllers', [])
                 fabs[0].remove();
             }
         };
+        $scope.logOut=function(){
+            window.localStorage.clear();
+            $state.go('app.login');
+
+        }
     })
 
     .controller('LoginCtrl', function($scope, $timeout, $stateParams, ionicMaterialInk) {

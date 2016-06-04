@@ -8,7 +8,7 @@ angular.module('starter.services', [])
             ServerUrl: function () {
                 // return "https://chatad.herokuapp.com";
                 // return "http://10.0.0.3:3000";
-                return "http://192.168.1.14:3000";
+                return "http://192.168.1.21:3000";
             },
             UserDetails: function(){
 
