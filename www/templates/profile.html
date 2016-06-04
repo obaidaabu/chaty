@@ -29,6 +29,9 @@
                 <h2>{{subject.title}}</h2>
                 <p>{{subject.description}}</p>
                 <i ng-click="deleteSubject(subject)" class="icon ion-android-cancel muted"></i>
+                <div class="pull-left">
+                    <i class="icon ion-clock"></i> <span am-time-ago="subject.create_date"></span>
+                </div>
             </ion-item>
         </ion-list>
         <!--<div class="list animate-fade-slide-in-right" ng-repeat="subject in subjects">-->
