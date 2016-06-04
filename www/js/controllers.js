@@ -280,67 +280,74 @@ angular.module('starter.controllers', [])
 
 		//});
 		$scope.sendMessage = function () {
-			$ionicScrollDelegate.scrollBottom();
-			var otherUrl = "https://chatoi.firebaseio.com/chats/" + $scope.conversationId.split("-")[0] + "/" + $scope.userId + '-' + $scope.conversationId.split("-")[1];
-			var ref2, ref1;
-			if (isFirstMessage) {
-				ref2 = new Firebase(otherUrl);
-				ref1 = new Firebase(myUrl);
-				var newMessageRef1 = ref1.push();
-                ref1.set({
-					messages: [{body: $scope.messageContent, sender: $scope.userId}],
-					userName: chatDetails.userName,
-					subjectName: chatDetails.subjectName,
-					fbPhotoUrl:chatDetails.fbPhotoUrl
-				});
-				
-				var newMessageRef2 = ref2.push();
-                ref2.set({
-					messages: [{body: $scope.messageContent, sender: $scope.userId}],
-					userName:userName,
-					subjectName: chatDetails.subjectName,
-					fbPhotoUrl: userDetails.fbPhotoUrl
-				});
-
-				isFirstMessage = false;
-			}
-			else {
-				ref2 = new Firebase(otherUrl + "/messages");
-				ref1 = new Firebase(myUrl + "/messages");
-				var newMessageRef1 = ref1.push();
-				newMessageRef1.set(
-					{
-						body: $scope.messageContent,
-						sender: $scope.userId
-					}
-				);
-				var newMessageRef2 = ref2.push();
-				newMessageRef2.set(
-					{
-						body: $scope.messageContent,
-						sender: $scope.userId
+			try {
+				$ionicScrollDelegate.scrollBottom();
+				var otherUrl = "https://chatoi.firebaseio.com/chats/" + $scope.conversationId.split("-")[0] + "/" + $scope.userId + '-' + $scope.conversationId.split("-")[1];
+				var ref2, ref1;
+				if (isFirstMessage) {
+					ref2 = new Firebase(otherUrl);
+					ref1 = new Firebase(myUrl);
+					var newMessageRef1 = ref1.push();
+					ref1.set({
+						messages: [{body: $scope.messageContent, sender: $scope.userId}],
+						userName: chatDetails.userName,
+						subjectName: chatDetails.subjectName,
+						fbPhotoUrl: chatDetails.fbPhotoUrl
 					});
-			}
-			var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
-			userRef.on("value", function (userSnapshot) {
-				if (userSnapshot.val() == 'offline') {
 
-					var message = {
-						user: createrId,
-						message: $scope.messageContent,
-						conversationId: $scope.userId + "-" + subjectId
-					}
-					NotificationService.SendMessage(message)
-						.then(function (message) {
+					var newMessageRef2 = ref2.push();
+					ref2.set({
+						messages: [{body: $scope.messageContent, sender: $scope.userId}],
+						userName: userName,
+						subjectName: chatDetails.subjectName,
+						fbPhotoUrl: userDetails.fbPhotoUrl
+					});
 
-						}, function (err) {
+					isFirstMessage = false;
+				}
+				else {
+					ref2 = new Firebase(otherUrl + "/messages");
+					ref1 = new Firebase(myUrl + "/messages");
+					var newMessageRef1 = ref1.push();
+					newMessageRef1.set(
+						{
+							body: $scope.messageContent,
+							sender: $scope.userId
+						}
+					);
+					var newMessageRef2 = ref2.push();
+					newMessageRef2.set(
+						{
+							body: $scope.messageContent,
+							sender: $scope.userId
 						});
 				}
-			});
-			$location.hash('bottom');
+				var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
+				userRef.on("value", function (userSnapshot) {
+					if (userSnapshot.val() == 'offline') {
 
-			delete $scope.messageContent;
+						var message = {
+							user: createrId,
+							message: $scope.messageContent,
+							conversationId: $scope.userId + "-" + subjectId
+						}
+						NotificationService.SendMessage(message)
+							.then(function (message) {
+
+							}, function (err) {
+							});
+					}
+				});
+				$location.hash('bottom');
+
+				delete $scope.messageContent;
+			}
+			catch (err)
+			{
+				//window.localStorage["err"];
+			}
 		}
+
 	})
 	.controller('MessagesCtrl', function ($scope, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService, UserService,EntityService) {
 		$scope.$parent.showHeader();
@@ -645,7 +652,7 @@ angular.module('starter.controllers', [])
 				$scope.subject.user = res;
 				SubjectService.CreateSubject($scope.subject)
 					.then(function () {
-						
+
 						$rootScope.$emit('renderSubjectList', 'new subjects list');
 						//$timeout(function () {
 						//	$scope.subjects.push($scope.subject);
