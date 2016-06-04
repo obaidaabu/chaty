@@ -1,23 +1,20 @@
-<ion-view>
-    <header-bar></header-bar>
-    <ion-content class="content-stable">
+<ion-view view-title="Chat">
+    <ion-content>
+        <div class="content has-header">
+            <list style="height: 100%">
+                <div ng-class="message.sender==userId ? 'sender-div' : (message.sender!=userId ? 'reciver-div' : 'sender-div')" ng-repeat="message in messages"
+                     class="messages" id="post-{{ ::$index }}" scroll-to-last="post-{{ ::$index }}">
 
-        <div ng-class="message.sender==userId ? 'sender-div' : (message.sender!=userId ? 'reciver-div' : 'sender-div')" ng-repeat="message in messages"
-             class="messages">
-
-
-
-            <div class="sender-span" ng-if="message.sender==userId">
-                <span>{{ message.body }}</span>
-            </div>
-            <div class="reciver-span" ng-if="message.sender!=userId">
-                <span> {{ message.body }}</span>
-            </div>
-
-
+                    <div class="sender-span" ng-if="message.sender==userId">
+                        <span>{{ message.body }}</span>
+                    </div>
+                    <div class="reciver-span" ng-if="message.sender!=userId">
+                        <span> {{ message.body }}</span>
+                    </div>
+                </div>
+            </list>
 
         </div>
-
     </ion-content>
 
     <ion-footer-bar keyboard-attach class="bar-stable item-input-inset">

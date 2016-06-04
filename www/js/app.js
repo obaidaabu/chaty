@@ -4,7 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ionic-material', 'ionMdInput', 'firebase', 'ngCordova'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.directives', 'ionic-material', 'ionMdInput', 'firebase', 'ngCordova', 'angularMoment'])
 
 	.run(function ($ionicPlatform, $state) {
 		$ionicPlatform.ready(function () {
@@ -27,7 +27,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 					if (error) {
 						console.log("Login Failed!", error);
 					} else {
-						$state.go("app.profile");
+						$state.go("app.subjects");
 					}
 				});
 
@@ -60,11 +60,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 controller: 'SubjectsCtrl'
             },
             'fabContent': {
-                template: '<button id="fab-activity" class="button button-fab button-fab-top-right expanded button-energized-900 flap"><i class="icon ion-paper-airplane"></i></button>',
+                template: '<button ui-sref="app.messages" id="fab-friends" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-chatbubbles"></i></button>',
                 controller: function ($timeout) {
                     $timeout(function () {
-                        document.getElementById('fab-activity').classList.toggle('on');
-                    }, 200);
+                        document.getElementById('fab-friends').classList.toggle('on');
+                    }, 900);
                 }
             }
         }
@@ -78,12 +78,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 controller: 'MessagesCtrl'
             },
             'fabContent': {
-                template: '<button id="fab-friends" class="button button-fab button-fab-top-left expanded button-energized-900 spin"><i class="icon ion-chatbubbles"></i></button>',
-                controller: function ($timeout) {
-                    $timeout(function () {
-                        document.getElementById('fab-friends').classList.toggle('on');
-                    }, 900);
-                }
+                template: ''
             }
         }
     })
@@ -135,7 +130,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 controller: 'ProfileCtrl'
             },
             'fabContent': {
-                template: '<button ng-controller="ProfileCtrl" ng-click="createSubject()" id="fab-profile" class="button button-fab button-fab-bottom-right button-energized-900"><i class="icon ion-plus"></i></button>'
+                template: '<button ng-controller="ProfileCtrl" ng-click="createSubject()" id="fab-profile" class="add-subject-btn button button-fab button-fab-bottom-right button-energized-900"><i class="icon ion-plus"></i></button>'
             }
         }
     })

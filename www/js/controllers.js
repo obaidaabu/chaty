@@ -3,15 +3,13 @@
 
 angular.module('starter.controllers', [])
 
-    .controller('AppCtrl', function($scope,$state, $ionicModal, $ionicPopover, $timeout, UserService) {
+    .controller('AppCtrl', function($scope,$state, $ionicModal, $ionicPopover, $timeout, UserService,ConfigurationService) {
         // Form data for the login modal
         $scope.loginData = {};
         $scope.isExpanded = false;
         $scope.hasHeaderFabLeft = false;
         $scope.hasHeaderFabRight = false;
-        $scope.createSubject= function(){
-            alert("s");
-        }
+        $scope.userDetails=ConfigurationService.UserDetails();
         $scope.fbLogin = function() {
 
             if(window.cordova ){
@@ -147,12 +145,12 @@ angular.module('starter.controllers', [])
         }, 0);
         ionicMaterialInk.displayEffect();
     })
-    .controller('ChatCtrl', function($scope, $state, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService) {
+    .controller('ChatCtrl', function($scope,$location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService) {
         $scope.conversationId = $state.params.conversationId;
         $scope.lastMessageKey = $state.params.lastMessageKey;
         $scope.messages = [];
         var userDetails = ConfigurationService.UserDetails();
-        var userId = userDetails._id;
+        $scope.userId = userDetails._id;
         var userName = userDetails.first_name + " " + userDetails.last_name;
 
         if(window.localStorage['messages']){
@@ -178,7 +176,7 @@ angular.module('starter.controllers', [])
         var subjectId = $scope.conversationId.split("-")[1];
         //var createrUser = userRef.val(createrId);
 
-        var myUrl = "https://chatoi.firebaseio.com/chats/" + userId + "/" + $scope.conversationId;
+        var myUrl = "https://chatoi.firebaseio.com/chats/" + $scope.userId + "/" + $scope.conversationId;
         var ref = new Firebase(myUrl + "/messages");
         var list = $firebaseArray(ref);
         var isFirstMessage = false;
@@ -195,24 +193,24 @@ angular.module('starter.controllers', [])
         //});
         $scope.sendMessage = function () {
 
-            var otherUrl = "https://chatoi.firebaseio.com/chats/" + $scope.conversationId.split("-")[0] + "/" + userId + '-' + $scope.conversationId.split("-")[1];
+            var otherUrl = "https://chatoi.firebaseio.com/chats/" + $scope.conversationId.split("-")[0] + "/" + $scope.userId + '-' + $scope.conversationId.split("-")[1];
             var ref2, ref1;
             if (isFirstMessage) {
                 ref2 = new Firebase(otherUrl);
                 ref1 = new Firebase(myUrl);
                 var newMessageRef1 = ref1.push();
-                ref1.set({messages: [{body: $scope.messageContent, sender: userId}],userName:$state.params.userName,subjectName:$state.params.subjectName});
+                ref1.set({messages: [{body: $scope.messageContent, sender: $scope.userId}],userName:$state.params.userName,subjectName:$state.params.subjectName});
                 var newMessageRef2 = ref2.push();
-                ref2.set({messages: [{body: $scope.messageContent, sender: userId}],userName:userName,subjectName:$state.params.subjectName});
+                ref2.set({messages: [{body: $scope.messageContent, sender: $scope.userId}],userName:userName,subjectName:$state.params.subjectName});
                 isFirstMessage=false;
             }
             else {
                 ref2 = new Firebase(otherUrl + "/messages");
                 ref1 = new Firebase(myUrl + "/messages");
                 var newMessageRef1 = ref1.push();
-                newMessageRef1.set({body: $scope.messageContent, sender: userId});
+                newMessageRef1.set({body: $scope.messageContent, sender: $scope.userId});
                 var newMessageRef2 = ref2.push();
-                newMessageRef2.set({body: $scope.messageContent, sender: userId});
+                newMessageRef2.set({body: $scope.messageContent, sender: $scope.userId});
             }
             var userRef = new Firebase('https://chatoi.firebaseio.com/presence/'+createrId);
             userRef.on("value", function(userSnapshot) {
@@ -221,7 +219,7 @@ angular.module('starter.controllers', [])
                     var message = {
                         user :createrId,
                         message: $scope.messageContent,
-                        conversationId: window.localStorage['userId'] + "-" + subjectId
+                        conversationId: $scope.userId + "-" + subjectId
                     }
                     NotificationService.SendMessage(message)
                         .then(function (message) {
@@ -230,7 +228,8 @@ angular.module('starter.controllers', [])
                         });
                 }
             });
-
+            $location.hash('bottom');
+            $anchorScroll();
             delete $scope.messageContent;
         }
     })
@@ -346,7 +345,13 @@ angular.module('starter.controllers', [])
         $scope.$parent.setHeaderFab(false);
         $scope.userProfile = angular.fromJson(window.localStorage['user']);
         $scope.subjects = [];
+        $scope.deleteSubject = function (subject) {
+            SubjectService.DeleteSubjects(subject)
+                .then(function () {
 
+                }, function (err) {
+                });
+        }
         SubjectService.GetSubjects(true)
             .then(function (subjects) {
                 $scope.subjects = subjects;
@@ -432,10 +437,10 @@ angular.module('starter.controllers', [])
         $scope.$parent.setExpanded(true);
         $scope.$parent.setHeaderFab('right');
         $scope.subjects= [];
+        $scope.ddd = "14650332430";
         SubjectService.GetSubjects(false)
             .then(function (subjects) {
-
-                angular.copy(subjects, $scope.subjects);
+                $scope.subjects = subjects;
                 $timeout(function() {
                     ionicMaterialMotion.fadeSlideIn({
                         selector: '.animate-fade-slide-in .item'

@@ -89,14 +89,15 @@ p {
 }
 .send-message-input{
     width: 100%;
-    padding: 5px !important;
+    padding: 10px !important;
     border-radius: 5px ;
+    margin-left: 10px;
 }
 
 
 
 .sender-span {
-    background: #BCDEC6 !important;
+    background: #B1DABD !important;
     display: inline-block !important;
     color: black !important;
     padding: 10px !important;
@@ -155,4 +156,23 @@ p {
 }
 .subject-desciption{
     height: 90px !important;
+}
+
+/*changing style*/
+.bar{
+    background-color: #516FAB !important;
+}
+.buttons-blue{
+    background-color: #1C5896 !important;
+}
+.messages-btn{
+    background-color: #1C5896 !important;
+}
+.add-subject-btn{
+    background-color: #1C5896 !important;
+}
+.menu .bar.bar-header.expanded{
+
+    background-size: 0;
+
 }

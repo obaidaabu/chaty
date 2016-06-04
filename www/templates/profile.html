@@ -11,24 +11,24 @@
                 <h4>dragon_mommy</h4>
             </div>
         </div>
-        <div class="tabs tabs-dark tabs-icon-top static">
-            <a ui-sref="app.subjects" class="tab-item">
-                <i class="icon ion-arrow-graph-up-right"></i> Subjects
-            </a>
-            <a ui-sref="app.messages" class="tab-item">
-                <i class="icon ion-android-people"></i> Messages
-            </a>
-            <a ui-sref="app.gallery" class="tab-item">
-                <i class="icon ion-images"></i> Photos
-            </a>
-        </div>
+        <!--<div class="tabs tabs-dark tabs-icon-top static">-->
+            <!--<a ui-sref="app.subjects" class="tab-item">-->
+                <!--<i class="icon ion-arrow-graph-up-right"></i> Subjects-->
+            <!--</a>-->
+            <!--<a ui-sref="app.messages" class="tab-item">-->
+                <!--<i class="icon ion-android-people"></i> Messages-->
+            <!--</a>-->
+            <!--<a ui-sref="app.gallery" class="tab-item">-->
+                <!--<i class="icon ion-images"></i> Photos-->
+            <!--</a>-->
+        <!--</div>-->
         <h4 class="content padding double-padding-x">Subjects</h4>
         <div class="list animate-fade-slide-in-right" ng-repeat="subject in subjects">
             <a ui-sref="app.friends" class="item item-avatar item-icon-right">
                 <img src="img/jon-snow.jpg">
                 <h2>{{subject.title}}</h2>
                 <p>{{subject.description}}</p>
-                <i class="icon ion-chatbubble muted"></i>
+                <i ng-click="deleteSubject(subject)" class="icon ion-android-cancel muted"></i>
             </a>
         </div>
 
