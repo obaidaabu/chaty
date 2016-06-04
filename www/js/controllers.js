@@ -337,7 +337,7 @@ angular.module('starter.controllers', [])
         });
 })
 
-    .controller('ProfileCtrl', function($scope,$ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService) {
+    .controller('ProfileCtrl', function($scope,$ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService,EntityService) {
         $scope.$parent.showHeader();
         $scope.$parent.clearFabs();
         $scope.isExpanded = false;
@@ -352,17 +352,34 @@ angular.module('starter.controllers', [])
                 }, function (err) {
                 });
         }
-        SubjectService.GetSubjects(true)
-            .then(function (subjects) {
-                $scope.subjects = subjects;
+        var otherUser = EntityService.getOtherProfile();
+        if(otherUser){
+            $scope.userProfile = otherUser;
+            SubjectService.GetSubjects(true,otherUser._id)
+                .then(function (subjects) {
+                    $scope.subjects = subjects;
 
-                $timeout(function() {
-                    ionicMaterialMotion.fadeSlideInRight({
-                        startVelocity: 3000
-                    });
-                }, 700);
-            }, function (err) {
-            });
+                    $timeout(function() {
+                        ionicMaterialMotion.fadeSlideInRight({
+                            startVelocity: 3000
+                        });
+                    }, 700);
+                }, function (err) {
+                });
+        }else{
+            SubjectService.GetSubjects(true)
+                .then(function (subjects) {
+                    $scope.subjects = subjects;
+
+                    $timeout(function() {
+                        ionicMaterialMotion.fadeSlideInRight({
+                            startVelocity: 3000
+                        });
+                    }, 700);
+                }, function (err) {
+                });
+        }
+
 
         $timeout(function() {
 
@@ -430,14 +447,17 @@ angular.module('starter.controllers', [])
     ionicMaterialInk.displayEffect();
 })
 
-    .controller('SubjectsCtrl', function($scope, $state, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk,SubjectService) {
+    .controller('SubjectsCtrl', function($scope, $state, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk,SubjectService,EntityService) {
         $scope.$parent.showHeader();
         $scope.$parent.clearFabs();
         $scope.isExpanded = true;
         $scope.$parent.setExpanded(true);
         $scope.$parent.setHeaderFab('right');
         $scope.subjects= [];
-        $scope.ddd = "14650332430";
+        $scope.goToUserProfile = function(user){
+            EntityService.setProfile(user);
+            $state.go("app.profile");
+        }
         SubjectService.GetSubjects(false)
             .then(function (subjects) {
                 $scope.subjects = subjects;

@@ -176,3 +176,6 @@ p {
     background-size: 0;
 
 }
+.subject-new-message:before{
+    font-size: 30px !important;
+}

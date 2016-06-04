@@ -1,11 +1,15 @@
 <ion-view view-title="Subjects">
     <ion-content ng-class="{expanded:isExpanded}" class="animate-fade-slide-in">
         <div class="item card-item" ng-repeat="subject in subjects">
-            <div ng-click="goToChat(subject)" class="card stable-bg ink ink-dark">
+            <div class="card stable-bg ink ink-dark">
                 <div class="item item-avatar item-text-wrap">
-                    <span class="avatar" style="background-image: url('img/jon-snow.jpg');"></span>
-                    <strong>{{subject.title}}</strong>
+                    <span ng-click="goToUserProfile(subject.user)" class="avatar" style="background-image: url({{subject.user.fbPhotoUrl}});"></span>
+                    <strong>
+                        {{subject.title}}
+                    </strong>
+                    <i ng-click="goToChat(subject)" class="subject-new-message icon pull-right ion-chatbubble-working positive"></i>
                     <p>{{subject.description}}</p>
+
                     <div class="card-footer text-right">
                         <i class="icon ion-chatbubbles positive"></i> 6
                         <i class="icon ion-heart assertive"></i> 23

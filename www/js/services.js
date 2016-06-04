@@ -23,9 +23,12 @@ angular.module('starter.services', [])
     })
     .factory('SubjectService', function ($http, $log, $q, ConfigurationService) {
         return {
-            GetSubjects: function (userSubjects) {
+            GetSubjects: function (userSubjects,userId) {
                 var deferred = $q.defer();
-                $http.get(ConfigurationService.ServerUrl() + '/api/subjects?userSubjects='+userSubjects , {
+                if(userId == undefined){
+                    userId = null;
+                }
+                $http.get(ConfigurationService.ServerUrl() + '/api/subjects?userSubjects='+userSubjects +'&userId='+userId , {
                     headers: {
                         "access-token": ConfigurationService.UserDetails().token
                     }
@@ -119,4 +122,26 @@ angular.module('starter.services', [])
                 return deferred.promise;
             }
         }
+    })
+    .factory('EntityService', function () {
+        var otherProfile = null;
+        var deleteFromArray = function(array,item){
+            for(var i=0; i<array.length;i++){
+                if(array[i]._id == item._id) {
+                    array.splice(i,1);
+                }
+            }
+        };
+        var setProfile = function(user){
+            otherProfile = user;
+        }
+        var getOtherProfile = function(){
+            return otherProfile;
+        }
+        return {
+            deleteFromArray : deleteFromArray,
+            setProfile : setProfile,
+            getOtherProfile: getOtherProfile
+
+        };
     });
