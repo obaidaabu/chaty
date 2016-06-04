@@ -11,7 +11,7 @@ angular.module('starter.controllers', [])
 		$scope.hasHeaderFabRight = false;
 		$scope.userDetails = ConfigurationService.UserDetails();
 		$scope.fbLogin = function () {
-			
+
 			if (window.cordova) {
 				UserService.FBlogin().then(function success(s) {
 
@@ -59,7 +59,22 @@ angular.module('starter.controllers', [])
 			}
 
 		};
+		$scope.updateUserDetails = function () {
 
+			var user = {
+				fbToken: $scope.userDetails.fbToken,
+				notification_token: $scope.userDetails.notification_token
+			}
+			UserService.CreateUser(user)
+				.then(function (user) {
+					var newUserData = angular.toJson(user);
+					window.localStorage['user'] = newUserData;
+					$scope.userDetails = newUserData;
+					$state.go("app.profile");
+				}, function (err) {
+				});
+			//$scope.userDetails.fbPhotoUrl= 'http://brentcarnduff.com/wp-content/uploads/2014/08/url-small.jpg';
+		}
 		var navIcons = document.getElementsByClassName('ion-navicon');
 		for (var i = 0; i < navIcons.length; i++) {
 			navIcons.addEventListener('click', function () {
@@ -142,7 +157,7 @@ angular.module('starter.controllers', [])
 		}
 	})
 
-	.controller('LoginCtrl', function ($scope, $timeout, $stateParams, ionicMaterialInk,UserService, $state) {
+	.controller('LoginCtrl', function ($scope, $timeout, $stateParams, ionicMaterialInk, UserService, $state) {
 		$scope.fbLogin = function () {
 
 			if (window.cordova) {
@@ -178,7 +193,7 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAAZAMbMtmoBIBAAMQquZBYND6oZAGSFA5kHHhd8ERy0XnzfkcPRius9dTySs7GkYQfDIvxVm9HMBlvVxEAskDLTQ8N08pe18GZBgzFmssrU9zrfZCj8aKE13bySp9vdbMwartamZCut5bv5Cx3cU2817yfw7eZCDLfKZBOGqG1CcBL71VNlJWolNxsrxrVmPiEwz6IbJ9aukOAZDZD',
+					fbToken: 'EAAZAMbMtmoBIBAEQo0KOr8rTkZBHjQZBnoOPV4V454WbZCj7S6D6smDTlIuaPu8CHsGWfIEQWgnu7yBZCnrlPEReYuQwnzyVhkctDjHGxBWQf6ZAmijvbd6VWOhzEDuE8mlwimZBjZBizZC1cQhtLf76767ulBgORtXY0BZCdNbi4aZB6JflI1BwQCn',
 					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
 				}
@@ -408,7 +423,7 @@ angular.module('starter.controllers', [])
 		});
 	})
 
-	.controller('ProfileCtrl', function ($scope,$rootScope, $ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService, EntityService) {
+	.controller('ProfileCtrl', function ($scope, $rootScope, $ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService, EntityService) {
 		$scope.$parent.showHeader();
 		$scope.$parent.clearFabs();
 		$scope.isExpanded = false;
@@ -423,7 +438,8 @@ angular.module('starter.controllers', [])
 				}, function (err) {
 				});
 		}
-		function renderSubjectList(){
+
+		function renderSubjectList() {
 			var otherUser = EntityService.getOtherProfile();
 			if (otherUser) {
 				$scope.userProfile = otherUser;
@@ -461,22 +477,20 @@ angular.module('starter.controllers', [])
 				selector: '.slide-up'
 			});
 		}, 300);
-		$scope.blinds = function() {
+		$scope.blinds = function () {
 			//  reset();
 			//   document.getElementsByTagName('ion-list')[0].className += ' animate-blinds';
-			setTimeout(function() {
+			setTimeout(function () {
 				ionicMaterialMotion.blinds(); // ionic.material.motion.blinds(); //ionicMaterialMotion
 			}, 500);
 		};
-
-
 
 
 		// Set Ink
 
 		renderSubjectList();
 		$rootScope.$on('renderSubjectList', function (event, data) {
-			
+
 			renderSubjectList(); // 'Data to send'
 		});
 		ionicMaterialInk.displayEffect();
@@ -536,62 +550,62 @@ angular.module('starter.controllers', [])
 		});
 
 	})
-	.controller('FabCtrl', function ($scope,$rootScope, $stateParams, $timeout, ionicMaterialInk, ionicMaterialMotion,$ionicPopup,ConfigurationService,SubjectService) {
+	.controller('FabCtrl', function ($scope, $rootScope, $stateParams, $timeout, ionicMaterialInk, ionicMaterialMotion, $ionicPopup, ConfigurationService, SubjectService) {
 
-	$scope.createSubject = function () {
+		$scope.createSubject = function () {
 
-		$scope.subject = {
-			title: "",
-			user: "",
-			description: ""
-		}
-		// An elaborate, custom popup
-		var myPopup = $ionicPopup.show({
-			template: 'title:<input type="text" ng-model="subject.title">description:<textarea class="subject-desciption" ng-model="subject.description"></textarea>',
-			title: 'add subject',
-			cssClass: 'addSubjectPopup',
-			scope: $scope,
-			buttons: [
-				{
-					text: '<b>Add</b>',
-					type: 'button-calm',
-					onTap: function (e) {
-						if ($scope.subject.title == '') {
-							//don't allow the user to close unless he enters wifi password
-							e.preventDefault();
-						} else {
-							return ConfigurationService.UserDetails()._id;
-						}
-					}
-				},
-				{text: 'Cancel'}
-
-			]
-		});
-
-		myPopup.then(function (res) {
-
-			if (res) {
-
-				$scope.subject.user = res;
-				SubjectService.CreateSubject($scope.subject)
-					.then(function () {
-						
-						$rootScope.$emit('renderSubjectList', 'new subjects list');
-						//$timeout(function () {
-						//	$scope.subjects.push($scope.subject);
-						//	ionicMaterialMotion.fadeSlideInRight({
-						//		startVelocity: 3000
-						//	});
-						//}, 700);
-					}, function (err) {
-					});
-
-
+			$scope.subject = {
+				title: "",
+				user: "",
+				description: ""
 			}
-		});
+			// An elaborate, custom popup
+			var myPopup = $ionicPopup.show({
+				template: 'title:<input type="text" ng-model="subject.title">description:<textarea class="subject-desciption" ng-model="subject.description"></textarea>',
+				title: 'add subject',
+				cssClass: 'addSubjectPopup',
+				scope: $scope,
+				buttons: [
+					{
+						text: '<b>Add</b>',
+						type: 'button-calm',
+						onTap: function (e) {
+							if ($scope.subject.title == '') {
+								//don't allow the user to close unless he enters wifi password
+								e.preventDefault();
+							} else {
+								return ConfigurationService.UserDetails()._id;
+							}
+						}
+					},
+					{text: 'Cancel'}
 
-	};
-})
+				]
+			});
+
+			myPopup.then(function (res) {
+
+				if (res) {
+
+					$scope.subject.user = res;
+					SubjectService.CreateSubject($scope.subject)
+						.then(function () {
+
+							$rootScope.$emit('renderSubjectList', 'new subjects list');
+							//$timeout(function () {
+							//	$scope.subjects.push($scope.subject);
+							//	ionicMaterialMotion.fadeSlideInRight({
+							//		startVelocity: 3000
+							//	});
+							//}, 700);
+						}, function (err) {
+						});
+
+
+				}
+			});
+
+		};
+	})
 
 ;
