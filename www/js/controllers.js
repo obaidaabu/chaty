@@ -11,7 +11,7 @@ angular.module('starter.controllers', [])
 		$scope.hasHeaderFabRight = false;
 		$scope.userDetails = ConfigurationService.UserDetails();
 		$scope.fbLogin = function () {
-			
+
 			if (window.cordova) {
 				UserService.FBlogin().then(function success(s) {
 
@@ -59,7 +59,22 @@ angular.module('starter.controllers', [])
 			}
 
 		};
+		$scope.updateUserDetails = function () {
 
+			var user = {
+				fbToken: $scope.userDetails.fbToken,
+				notification_token: $scope.userDetails.notification_token
+			}
+			UserService.CreateUser(user)
+				.then(function (user) {
+					var newUserData = angular.toJson(user);
+					window.localStorage['user'] = newUserData;
+					$scope.userDetails = newUserData;
+					$state.go("app.profile");
+				}, function (err) {
+				});
+			//$scope.userDetails.fbPhotoUrl= 'http://brentcarnduff.com/wp-content/uploads/2014/08/url-small.jpg';
+		}
 		var navIcons = document.getElementsByClassName('ion-navicon');
 		for (var i = 0; i < navIcons.length; i++) {
 			navIcons.addEventListener('click', function () {
@@ -142,7 +157,7 @@ angular.module('starter.controllers', [])
 		}
 	})
 
-	.controller('LoginCtrl', function ($scope, $timeout, $stateParams, ionicMaterialInk,UserService, $state) {
+	.controller('LoginCtrl', function ($scope, $timeout, $stateParams, ionicMaterialInk, UserService, $state) {
 		$scope.fbLogin = function () {
 
 			if (window.cordova) {
@@ -429,7 +444,7 @@ angular.module('starter.controllers', [])
 		});
 	})
 
-	.controller('ProfileCtrl', function ($scope,$rootScope, $ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService, EntityService) {
+	.controller('ProfileCtrl', function ($scope, $rootScope, $ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService, EntityService) {
 		$scope.$parent.showHeader();
 		$scope.$parent.clearFabs();
 		$scope.isExpanded = false;
@@ -445,7 +460,8 @@ angular.module('starter.controllers', [])
 				}, function (err) {
 				});
 		}
-		function renderSubjectList(){
+
+		function renderSubjectList() {
 			var otherUser = EntityService.getOtherProfile();
 			if (otherUser) {
 				$scope.userProfile = otherUser;
@@ -485,21 +501,20 @@ angular.module('starter.controllers', [])
 		}, 300);
 		$scope.blinds = function() {
 
+		$scope.blinds = function () {
 			//  reset();
 			//   document.getElementsByTagName('ion-list')[0].className += ' animate-blinds';
-			setTimeout(function() {
+			setTimeout(function () {
 				ionicMaterialMotion.blinds(); // ionic.material.motion.blinds(); //ionicMaterialMotion
 			}, 300);
 		};
-
-
 
 
 		// Set Ink
 
 		renderSubjectList();
 		$rootScope.$on('renderSubjectList', function (event, data) {
-			
+
 			renderSubjectList(); // 'Data to send'
 		});
 		ionicMaterialInk.displayEffect();
