@@ -344,7 +344,7 @@ angular.module('starter.controllers', [])
 			}
 			catch (err)
 			{
-				//window.localStorage["err"];
+				var msgErrs=window.localStorage["msgErrs"];
 			}
 		}
 
@@ -503,6 +503,7 @@ angular.module('starter.controllers', [])
 				$scope.userProfile = otherUser;
 				SubjectService.GetSubjects(true, otherUser._id)
 					.then(function (subjects) {
+
 						$scope.subjects = subjects;
 						$scope.blinds();
 						//$timeout(function () {
@@ -568,6 +569,7 @@ angular.module('starter.controllers', [])
 		}
 		SubjectService.GetSubjects(false)
 			.then(function (subjects) {
+				debugger
 				$scope.subjects = subjects;
 				$timeout(function () {
 					ionicMaterialMotion.fadeSlideIn({
