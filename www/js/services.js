@@ -8,7 +8,7 @@ angular.module('starter.services', [])
             ServerUrl: function () {
                 // return "https://chatad.herokuapp.com";
                 // return "http://10.0.0.3:3000";
-                return "http://192.168.1.21:3000";
+                return "http://192.168.1.14:3000";
             },
             UserDetails: function(){
 
@@ -97,23 +97,7 @@ angular.module('starter.services', [])
                 var deferred = $q.defer();
                 $cordovaFacebook.login(["public_profile", "email", "user_friends","user_birthday"]).then(
                     function success(result) {
-
-
                         window.localStorage['fbData'] = angular.toJson(result.authResponse);
-
-                        $cordovaFacebook.api("me/?fields=id,name,first_name,last_name,picture", ["public_profile"])
-                            .then(function(success) {
-                                window.localStorage['fbName'] = success.name;
-                                window.localStorage['fbFirstName'] = success.first_name;
-                                window.localStorage['fbLastName'] = success.first_name;
-                                window.localStorage['fbPicture'] = angular.toJson(success.picture);
-
-
-                                deferred.resolve(success);
-                                // success
-                            }, function (error) {
-                                // error
-                            });
                     },
                     function error(reason) {
                         deferred.reject("Failed to login to facebook");
@@ -125,6 +109,7 @@ angular.module('starter.services', [])
     })
     .factory('EntityService', function () {
         var otherProfile = null;
+        var messageToDeal = null;
         var deleteFromArray = function(array,item){
             for(var i=0; i<array.length;i++){
                 if(array[i]._id == item._id) {
@@ -135,13 +120,23 @@ angular.module('starter.services', [])
         var setProfile = function(user){
             otherProfile = user;
         }
+
         var getOtherProfile = function(){
             return otherProfile;
+        }
+
+        var setMessageDetails = function(message){
+            messageToDeal = message;
+        }
+
+        var getMessageDetails = function(){
+            return messageToDeal;
         }
         return {
             deleteFromArray : deleteFromArray,
             setProfile : setProfile,
-            getOtherProfile: getOtherProfile
-
+            getOtherProfile: getOtherProfile,
+            setMessageDetails : setMessageDetails,
+            getMessageDetails: getMessageDetails
         };
     });

@@ -3,7 +3,7 @@
         <div class="content has-header">
             <div class="list animate-fade-slide-in-right">
                 <a ng-click="goToChat(message)" class="item item-avatar item-icon-right" ng-repeat="message in messages">
-                    <img src="img/jon-snow.jpg">
+                    <img ng-src="{{message.fbPhotoUrl}}">
                     <h2>{{message.userName}}</h2>
                     <p>{{message.lastMessage}}</p>
                     <i class="icon ion-chatbubble muted"></i>

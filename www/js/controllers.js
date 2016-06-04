@@ -149,14 +149,15 @@ angular.module('starter.controllers', [])
 		}, 0);
 		ionicMaterialInk.displayEffect();
 	})
-	.controller('ChatCtrl', function ($scope, $location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService) {
-		$scope.conversationId = $state.params.conversationId;
-		$scope.lastMessageKey = $state.params.lastMessageKey;
+    .controller('ChatCtrl', function($scope,$location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService, EntityService) {
+
+		var chatDetails = EntityService.getMessageDetails();
+        $scope.conversationId = chatDetails.conversationId;
+        $scope.lastMessageKey = chatDetails.lastMessageKey;
 		$scope.messages = [];
 		var userDetails = ConfigurationService.UserDetails();
 		$scope.userId = userDetails._id;
 		var userName = userDetails.first_name + " " + userDetails.last_name;
-
 		if (window.localStorage['messages']) {
 			var localMessages = angular.fromJson(window.localStorage['messages']);
 			var messagIndexx = common.indexOfConv(localMessages, $scope.conversationId);
@@ -196,33 +197,45 @@ angular.module('starter.controllers', [])
 
 		//});
 		$scope.sendMessage = function () {
-
 			var otherUrl = "https://chatoi.firebaseio.com/chats/" + $scope.conversationId.split("-")[0] + "/" + $scope.userId + '-' + $scope.conversationId.split("-")[1];
 			var ref2, ref1;
 			if (isFirstMessage) {
 				ref2 = new Firebase(otherUrl);
 				ref1 = new Firebase(myUrl);
 				var newMessageRef1 = ref1.push();
-				ref1.set({
+                ref1.set({
 					messages: [{body: $scope.messageContent, sender: $scope.userId}],
-					userName: $state.params.userName,
-					subjectName: $state.params.subjectName
+					userName: chatDetails.userName,
+					subjectName: chatDetails.subjectName,
+					fbPhotoUrl:chatDetails.fbPhotoUrl
 				});
+				
 				var newMessageRef2 = ref2.push();
-				ref2.set({
+                ref2.set({
 					messages: [{body: $scope.messageContent, sender: $scope.userId}],
-					userName: userName,
-					subjectName: $state.params.subjectName
+					userName:userName,
+					subjectName: chatDetails.subjectName,
+					fbPhotoUrl: userDetails.fbPhotoUrl
 				});
+
 				isFirstMessage = false;
 			}
 			else {
 				ref2 = new Firebase(otherUrl + "/messages");
 				ref1 = new Firebase(myUrl + "/messages");
 				var newMessageRef1 = ref1.push();
-				newMessageRef1.set({body: $scope.messageContent, sender: $scope.userId});
+				newMessageRef1.set(
+					{
+						body: $scope.messageContent,
+						sender: $scope.userId
+					}
+				);
 				var newMessageRef2 = ref2.push();
-				newMessageRef2.set({body: $scope.messageContent, sender: $scope.userId});
+				newMessageRef2.set(
+					{
+						body: $scope.messageContent,
+						sender: $scope.userId
+					});
 			}
 			var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
 			userRef.on("value", function (userSnapshot) {
@@ -245,11 +258,17 @@ angular.module('starter.controllers', [])
 			delete $scope.messageContent;
 		}
 	})
-	.controller('MessagesCtrl', function ($scope, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService) {
+	.controller('MessagesCtrl', function ($scope, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService,EntityService) {
 		$scope.$parent.showHeader();
 		$scope.$parent.clearFabs();
 		$scope.$parent.setHeaderFab('left');
 		$scope.goToChat = function (message) {
+            var messageDetails = {
+                conversationId: message.conversationId,
+                lastMessageKey: message.lastMessageKey
+
+            }
+			EntityService.setMessageDetails(messageDetails);
 			$state.go('app.chat', {conversationId: message.conversationId, lastMessageKey: message.lastMessageKey})
 		}
 		// Delay expansion
@@ -278,7 +297,6 @@ angular.module('starter.controllers', [])
 
 			list.$loaded()
 				.then(function (x) {
-
 					$scope.messages = [];
 
 					angular.forEach(x, function (value, key) {
@@ -320,24 +338,27 @@ angular.module('starter.controllers', [])
 								$scope.messages.push({
 									conversationId: conversationId,
 									lastMessage: lastMessage,
-									lastMessageKey: lastMessageKey,
-									subjectName: value.subjectName,
+									lastMessageKey:lastMessageKey,
+                                    subjectName: value.subjectName ,
+									fbPhotoUrl: value.fbPhotoUrl,
 									userName: value.userName,
 									online: online,
-									readMessage: readMessage
+									readMessage:readMessage
+
 								});
 							}
 							else {
-								$scope.messages[indexx] =
-								{
+                                $scope.messages[indexx]= {
 									conversationId: conversationId,
 									lastMessage: lastMessage,
-									lastMessageKey: lastMessageKey,
+									lastMessageKey:lastMessageKey,
 									subjectName: value.subjectName,
+									fbPhotoUrl:value.fbPhotoUrl ,
 									userName: value.userName,
 									online: online,
 									readMessage: readMessage
 								};
+
 							}
 
 							if (!$scope.$$phase) {
@@ -367,6 +388,7 @@ angular.module('starter.controllers', [])
 		$scope.userProfile = angular.fromJson(window.localStorage['user']);
 		$scope.subjects = [];
 		$scope.deleteSubject = function (subject) {
+			EntityService.deleteFromArray($scope.subjects,subject)
 			SubjectService.DeleteSubjects(subject)
 				.then(function () {
 
@@ -412,11 +434,12 @@ angular.module('starter.controllers', [])
 			});
 		}, 300);
 		$scope.blinds = function() {
+
 			//  reset();
 			//   document.getElementsByTagName('ion-list')[0].className += ' animate-blinds';
 			setTimeout(function() {
 				ionicMaterialMotion.blinds(); // ionic.material.motion.blinds(); //ionicMaterialMotion
-			}, 500);
+			}, 300);
 		};
 
 
@@ -457,11 +480,14 @@ angular.module('starter.controllers', [])
 		$scope.goToChat = function (subject) {
 
 			var userName = subject.user.first_name + " " + subject.user.last_name;
-			$state.go('app.chat', {
+			var messageDetails = {
 				conversationId: subject.user._id + "-" + subject._id,
 				userName: userName,
-				subjectName: subject.title
-			})
+				subjectName: subject.title,
+				fbPhotoUrl: subject.user.fbPhotoUrl
+			}
+			EntityService.setMessageDetails(messageDetails);
+			$state.go('app.chat')
 		}
 		ionicMaterialInk.displayEffect();
 
