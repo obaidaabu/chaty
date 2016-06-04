@@ -35,21 +35,4 @@ angular.module('starter.directives', [])
                 });
             }
         }
-    })
-    .directive('scrollToLast', ['$location', '$anchorScroll', function($location, $anchorScroll){
-
-        function linkFn(scope, element, attrs){
-
-            $location.hash(attrs.scrollToLast);
-            $anchorScroll();
-        }
-
-        return {
-            restrict: 'AE',
-            scope: {
-
-            },
-            link: linkFn
-        };
-
-    }]);
+    });

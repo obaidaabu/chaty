@@ -115,14 +115,10 @@ p {
     max-width: 240px !important;
 }
 .sender-div{
-    padding-right: 10px;
-    padding-left: 10px;
     direction: ltr;
-    padding-top: 5px;
+    padding: 5px 10px;
 }
 .reciver-div{
-    padding-right: 10px;
-    padding-left: 10px;
     direction: rtl;
     padding-top: 5px;
 }

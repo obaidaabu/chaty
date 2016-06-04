@@ -53,7 +53,7 @@ angular.module('starter.controllers', [])
 				UserService.CreateUser(user)
 					.then(function (user) {
 						window.localStorage['user'] = angular.toJson(user);
-						$state.go("app.profile");
+						$state.go("app.subjects");
 					}, function (err) {
 					});
 			}
@@ -173,15 +173,21 @@ angular.module('starter.controllers', [])
 					var user = {
 						fbToken: fbData['accessToken'],
 						notification_token: window.localStorage['notification_token']
-						// fbUserId: fbData['userID'],
-						// first_name: window.localStorage['fbFirstName'],
-						// last_name: window.localStorage['fbLastName'],
-
 					}
 
 					UserService.CreateUser(user)
 						.then(function (user) {
-							window.localStorage['userId'] = user._id;
+							window.localStorage['user'] = angular.toJson(user);
+							var ref = new Firebase("https://chatoi.firebaseio.com");
+
+							ref.authWithCustomToken(user.fireToken, function (error, authData) {
+
+								if (error) {
+									console.log("Login Failed!", error);
+								} else {
+									$state.go("app.subjects");
+								}
+							});
 							$state.go("tab.subjects");
 						}, function (err) {
 						});
@@ -193,7 +199,7 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAAZAMbMtmoBIBAAMQquZBYND6oZAGSFA5kHHhd8ERy0XnzfkcPRius9dTySs7GkYQfDIvxVm9HMBlvVxEAskDLTQ8N08pe18GZBgzFmssrU9zrfZCj8aKE13bySp9vdbMwartamZCut5bv5Cx3cU2817yfw7eZCDLfKZBOGqG1CcBL71VNlJWolNxsrxrVmPiEwz6IbJ9aukOAZDZD',
+					fbToken: 'EAAZAMbMtmoBIBAEQo0KOr8rTkZBHjQZBnoOPV4V454WbZCj7S6D6smDTlIuaPu8CHsGWfIEQWgnu7yBZCnrlPEReYuQwnzyVhkctDjHGxBWQf6ZAmijvbd6VWOhzEDuE8mlwimZBjZBizZC1cQhtLf76767ulBgORtXY0BZCdNbi4aZB6JflI1BwQCn',
 					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
 				}
@@ -201,7 +207,17 @@ angular.module('starter.controllers', [])
 				UserService.CreateUser(user)
 					.then(function (user) {
 						window.localStorage['user'] = angular.toJson(user);
-						$state.go("app.profile");
+						var ref = new Firebase("https://chatoi.firebaseio.com");
+
+						ref.authWithCustomToken(user.fireToken, function (error, authData) {
+
+							if (error) {
+								console.log("Login Failed!", error);
+							} else {
+								$state.go("app.subjects");
+							}
+						});
+						$state.go("app.subjects");
 					}, function (err) {
 					});
 			}
@@ -214,7 +230,8 @@ angular.module('starter.controllers', [])
 		//}, 0);
 		ionicMaterialInk.displayEffect();
 	})
-    .controller('ChatCtrl', function($scope,$location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService, EntityService) {
+    .controller('ChatCtrl', function($scope,$ionicScrollDelegate,$location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService, EntityService) {
+		$ionicScrollDelegate.scrollBottom();
 
 		var chatDetails = EntityService.getMessageDetails();
         $scope.conversationId = chatDetails.conversationId;
@@ -254,6 +271,7 @@ angular.module('starter.controllers', [])
 		list.$loaded()
 			.then(function (x) {
 				$scope.messages = x;
+				$ionicScrollDelegate.scrollBottom();
 				if (x.length == 0) {
 					isFirstMessage = true;
 				}
@@ -262,6 +280,7 @@ angular.module('starter.controllers', [])
 
 		//});
 		$scope.sendMessage = function () {
+			$ionicScrollDelegate.scrollBottom();
 			var otherUrl = "https://chatoi.firebaseio.com/chats/" + $scope.conversationId.split("-")[0] + "/" + $scope.userId + '-' + $scope.conversationId.split("-")[1];
 			var ref2, ref1;
 			if (isFirstMessage) {
@@ -319,11 +338,11 @@ angular.module('starter.controllers', [])
 				}
 			});
 			$location.hash('bottom');
-			$anchorScroll();
+
 			delete $scope.messageContent;
 		}
 	})
-	.controller('MessagesCtrl', function ($scope, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService,EntityService) {
+	.controller('MessagesCtrl', function ($scope, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService, UserService,EntityService) {
 		$scope.$parent.showHeader();
 		$scope.$parent.clearFabs();
 		$scope.$parent.setHeaderFab('left');
@@ -335,6 +354,16 @@ angular.module('starter.controllers', [])
             }
 			EntityService.setMessageDetails(messageDetails);
 			$state.go('app.chat', {conversationId: message.conversationId, lastMessageKey: message.lastMessageKey})
+		}
+		$scope.goToUserProfile = function(message){
+			var createrId = message.conversationId.split("-")[0];
+			UserService.GetUser(createrId)
+				.then(function (user) {
+					EntityService.setProfile(user);
+					$state.go("app.profile");
+				}, function (err) {
+				});
+
 		}
 		// Delay expansion
 		$timeout(function () {
@@ -499,7 +528,6 @@ angular.module('starter.controllers', [])
 				selector: '.slide-up'
 			});
 		}, 300);
-		$scope.blinds = function() {
 
 		$scope.blinds = function () {
 			//  reset();

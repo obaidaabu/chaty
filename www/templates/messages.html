@@ -2,11 +2,14 @@
     <ion-content class="has-header">
         <div class="content has-header">
             <div class="list animate-fade-slide-in-right">
-                <a ng-click="goToChat(message)" class="item item-avatar item-icon-right" ng-repeat="message in messages">
-                    <img ng-src="{{message.fbPhotoUrl}}">
-                    <h2>{{message.userName}}</h2>
-                    <p>{{message.lastMessage}}</p>
-                    <i class="icon ion-chatbubble muted"></i>
+                <a class="item item-avatar item-icon-right" ng-repeat="message in messages">
+                    <img ng-click="goToUserProfile(message)" ng-src="{{message.fbPhotoUrl}}">
+                    <div ng-click="goToChat(message)">
+                        <h2>{{message.userName}}</h2>
+                        <p>{{message.lastMessage}}</p>
+                        <i ng-click="goToChat(message)" class="icon ion-chatbubble muted"></i>
+                    </div>
+
                 </a>
 
             </div>

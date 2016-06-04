@@ -75,7 +75,6 @@ angular.module('starter.services', [])
     })
     .factory('UserService', function ($http, $log, $q ,$cordovaFacebook, ConfigurationService) {
         return {
-
             CreateUser: function (user) {
                 var deferred = $q.defer();
 
@@ -91,6 +90,20 @@ angular.module('starter.services', [])
                         deferred.reject(msg);
                         //   $log.error(msg, code);
                     });
+                return deferred.promise;
+            },
+            GetUser: function (userId) {
+                var deferred = $q.defer();
+                $http.get(ConfigurationService.ServerUrl() + '/api/users/'+userId, {
+                    headers: {
+                        "access-token": ConfigurationService.UserDetails().token
+                    }
+                }).success(function (data) {
+                    deferred.resolve(data);
+                }).error(function (msg, code) {
+                    deferred.reject(msg);
+                    //   $log.error(msg, code);
+                });
                 return deferred.promise;
             },
             FBlogin: function () {
