@@ -150,7 +150,7 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAAZAMbMtmoBIBAEQo0KOr8rTkZBHjQZBnoOPV4V454WbZCj7S6D6smDTlIuaPu8CHsGWfIEQWgnu7yBZCnrlPEReYuQwnzyVhkctDjHGxBWQf6ZAmijvbd6VWOhzEDuE8mlwimZBjZBizZC1cQhtLf76767ulBgORtXY0BZCdNbi4aZB6JflI1BwQCn',
+					fbToken: 'EAAZAMbMtmoBIBAJYrVZAasaihbjfZCfZBxKws2HgF5NRhk3YxlPqQbLB42JDk0kP42JZCWaZA7bMwyxW8Ul5JkkFxjeOxLVggZCJlI9LVJc28AxKZBujFnYXK5gRPGu7kIm9Ui1ki5vVM6ENhudefWnCCT4v5ZBBubnYZCvqvyOl6SpEetowYvi3hX',
 					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
 				}
