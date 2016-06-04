@@ -137,16 +137,66 @@ angular.module('starter.controllers', [])
 		};
 		$scope.logOut = function () {
 			window.localStorage.clear();
-			$state.go('app.login');
+			$state.go('login');
 
 		}
 	})
 
-	.controller('LoginCtrl', function ($scope, $timeout, $stateParams, ionicMaterialInk) {
-		$scope.$parent.clearFabs();
-		$timeout(function () {
-			$scope.$parent.hideHeader();
-		}, 0);
+	.controller('LoginCtrl', function ($scope, $timeout, $stateParams, ionicMaterialInk,UserService, $state) {
+		$scope.fbLogin = function () {
+
+			if (window.cordova) {
+				UserService.FBlogin().then(function success(s) {
+
+					if (window.cordova && typeof window.plugins.OneSignal != 'undefined') {
+						window.plugins.OneSignal.getIds(function (ids) {
+							window.localStorage['notification_token'] = ids.userId;
+
+						});
+					}
+					var fbData = angular.fromJson(window.localStorage['fbData']);
+					var user = {
+						fbToken: fbData['accessToken'],
+						notification_token: window.localStorage['notification_token']
+						// fbUserId: fbData['userID'],
+						// first_name: window.localStorage['fbFirstName'],
+						// last_name: window.localStorage['fbLastName'],
+
+					}
+
+					UserService.CreateUser(user)
+						.then(function (user) {
+							window.localStorage['userId'] = user._id;
+							$state.go("tab.subjects");
+						}, function (err) {
+						});
+					//alert($scope.FbName)
+
+
+				}, function error(msg) {
+					console.log("Error while performing Facebook login", msg);
+				})
+			} else {
+				var user = {
+					fbToken: 'EAAZAMbMtmoBIBAAMQquZBYND6oZAGSFA5kHHhd8ERy0XnzfkcPRius9dTySs7GkYQfDIvxVm9HMBlvVxEAskDLTQ8N08pe18GZBgzFmssrU9zrfZCj8aKE13bySp9vdbMwartamZCut5bv5Cx3cU2817yfw7eZCDLfKZBOGqG1CcBL71VNlJWolNxsrxrVmPiEwz6IbJ9aukOAZDZD',
+					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
+
+				}
+
+				UserService.CreateUser(user)
+					.then(function (user) {
+						window.localStorage['user'] = angular.toJson(user);
+						$state.go("app.profile");
+					}, function (err) {
+					});
+			}
+
+		};
+
+		//$scope.$parent.clearFabs();
+		//$timeout(function () {
+		//	$scope.$parent.hideHeader();
+		//}, 0);
 		ionicMaterialInk.displayEffect();
 	})
     .controller('ChatCtrl', function($scope,$location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService, EntityService) {
