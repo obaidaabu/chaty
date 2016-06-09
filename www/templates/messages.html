@@ -1,7 +1,7 @@
 <ion-view view-title="Messages">
     <ion-content class="has-header">
         <div class="content has-header">
-            <div class="list animate-fade-slide-in-right">
+            <div class="list">
                 <a class="item item-avatar item-icon-right" ng-repeat="message in messages">
                     <img ng-click="goToUserProfile(message)" ng-src="{{message.fbPhotoUrl}}">
                     <div ng-click="goToChat(message)">

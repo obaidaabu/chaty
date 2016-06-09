@@ -120,9 +120,10 @@ angular.module('starter.services', [])
             }
         }
     })
-    .factory('EntityService', function () {
+    .factory('EntityService', function (ConfigurationService) {
         var otherProfile = null;
         var messageToDeal = null;
+        var messages = [];
         var deleteFromArray = function(array,item){
             for(var i=0; i<array.length;i++){
                 if(array[i]._id == item._id) {
@@ -145,11 +146,86 @@ angular.module('starter.services', [])
         var getMessageDetails = function(){
             return messageToDeal;
         }
+        var setMessages = function(snapshot){
+            var userDetails=ConfigurationService.UserDetails();
+            angular.forEach(snapshot.val(), function (value, key) {
+                var conversationId = key;
+                var messagesArray = Object.getOwnPropertyNames(value.messages);
+
+                var lastMessageKey = messagesArray[messagesArray.length - 1];
+
+
+                var lastMessage = value.messages[lastMessageKey].body;
+                var lastSender = value.messages[lastMessageKey].sender;
+                var createrId = conversationId.split("-")[0];
+                var readMessage = true;
+                if (lastSender === userDetails._id) {
+                    readMessage = true;
+                } else {
+                    if (window.localStorage['messages'] && lastSender != userDetails._id) {
+                        var localMessages = angular.fromJson(window.localStorage['messages']);
+
+                        var messagIndexx = common.indexOfConv(localMessages, conversationId);
+
+                        if (messagIndexx === -1) {
+                            readMessage = false;
+                        }
+                        else {
+                            if (localMessages[messagIndexx].lastMessageKey != lastMessageKey) {
+                                readMessage = false;
+                            }
+                        }
+                    } else {
+                        readMessage = false;
+                    }
+                }
+                var indexx = common.indexOfConv(messages, conversationId);
+                var msg = {
+                    conversationId: conversationId,
+                    lastMessage: lastMessage,
+                    lastMessageKey: lastMessageKey,
+                    subjectName: value.subjectName,
+                    fbPhotoUrl: value.fbPhotoUrl,
+                    userName: value.userName,
+                    //online: online,
+                    readMessage: readMessage
+
+                }
+
+                if (indexx === -1) {
+                    messages.push(msg);
+                }
+                else {
+                    messages[indexx] = msg;
+
+                }
+                var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
+                userRef.on("value", function (userSnapshot) {
+
+                    var online = true;
+                    if (userSnapshot.val() == 'offline') {
+                        online = false;
+
+                    }
+
+                    var indexx = common.indexOfConv(messages, conversationId);
+
+                    messages[indexx].online = online
+
+
+                });
+            });
+        }
+        var getMessages = function(){
+            return messages;
+        }
         return {
             deleteFromArray : deleteFromArray,
             setProfile : setProfile,
             getOtherProfile: getOtherProfile,
             setMessageDetails : setMessageDetails,
-            getMessageDetails: getMessageDetails
+            getMessageDetails: getMessageDetails,
+            setMessages: setMessages,
+            getMessages: getMessages
         };
     });

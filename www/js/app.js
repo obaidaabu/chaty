@@ -60,7 +60,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 controller: 'SubjectsCtrl'
             },
             'fabContent': {
-                template: '<button ui-sref="app.messages" id="fab-friends" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-chatbubbles"></i></button>',
+                template: '<button ui-sref="app.messages" id="fab-friends" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-chatbubbles"></i></button>'
+                ,
                 controller: function ($timeout) {
                     $timeout(function () {
                         document.getElementById('fab-friends').classList.toggle('on');
@@ -76,9 +77,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             'menuContent': {
                 templateUrl: 'templates/messages.html',
                 controller: 'MessagesCtrl'
-            },
-            'fabContent': {
-                template: ''
             }
         }
     })
@@ -126,7 +124,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             },
             'fabContent': {
                 template: '<button ng-controller="FabCtrl" ng-click="createSubject()" id="fab-profile" class="add-subject-btn button button-fab button-fab-bottom-right button-energized-900"><i class="icon ion-plus"></i></button>'
-            }
+
+            },
+
+
         }
     })
     ;
