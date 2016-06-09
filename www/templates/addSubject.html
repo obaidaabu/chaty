@@ -1,0 +1,42 @@
+<ion-view view-title="Add Subject">
+    <ion-content ng-class="{expanded:isExpanded}" class="animate-fade-slide-in">
+        <div class="list">
+            <label class="item item-input item-floating-label">
+                <span class="input-label">Title</span>
+                <input type="text" ng-model="subject.title" placeholder="Title">
+            </label>
+            <label class="item item-input item-floating-label"> <span class="input-label">Description</span>
+                <input type="text"  ng-model="subject.description" placeholder="Description">
+            </label>
+            <br/>
+            <div class="item item-checkbox" ng-repeat="category in categories">
+                <label class="checkbox">
+                    <input type="checkbox" ng-model="category.isSelected">
+                </label>
+                {{category.name}}
+            </div>
+            <!--<div class="item card-item" ng-repeat="subject in subjects">-->
+                <!--<div class="card stable-bg ink ink-dark">-->
+                    <!--<div class="item item-avatar item-text-wrap">-->
+                        <!--<span ng-click="goToUserProfile(subject.user)" class="avatar"-->
+                              <!--style="background-image: url({{subject.user.fbPhotoUrl}});"></span>-->
+                        <!--<strong>-->
+                            <!--{{subject.title}}-->
+                        <!--</strong>-->
+                        <!--<i ng-click="goToChat(subject)"-->
+                           <!--class="subject-new-message icon pull-right ion-chatbubble-working positive"></i>-->
+                        <!--<p>{{subject.description}}</p>-->
+
+                        <!--<div class="card-footer text-right">-->
+                            <!--<i class="icon ion-chatbubbles positive"></i> 6-->
+                            <!--<i class="icon ion-heart assertive"></i> 23-->
+                            <!--<div class="pull-left">-->
+                                <!--<i class="icon ion-clock"></i> <span am-time-ago="subject.create_date"></span>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        </div>
+    </ion-content>
+</ion-view>
