@@ -3,7 +3,7 @@
 
 angular.module('starter.controllers', [])
 
-	.controller('AppCtrl', function ($rootScope, $scope, $state, $ionicModal, $ionicPopover, $timeout, UserService, ConfigurationService) {
+	.controller('AppCtrl', function ($rootScope, $scope, $state, $ionicModal, $ionicPopover, $timeout, UserService, ConfigurationService, EntityService) {
 		// Form data for the login modal
 		$scope.loginData = {};
 		$scope.isExpanded = false;
