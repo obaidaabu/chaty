@@ -8,7 +8,7 @@ angular.module('starter.services', [])
             ServerUrl: function () {
                 // return "https://chatad.herokuapp.com";
                 // return "http://10.0.0.3:3000";
-                return "http://192.168.1.14:3000";
+                return "http://192.168.1.21:3000";
             },
             UserDetails: function(){
 
@@ -23,6 +23,20 @@ angular.module('starter.services', [])
     })
     .factory('SubjectService', function ($http, $log, $q, ConfigurationService) {
         return {
+            GetCategories: function () {
+                var deferred = $q.defer();
+                $http.get(ConfigurationService.ServerUrl() + '/api/subjects/categories' , {
+                    headers: {
+                        "access-token": ConfigurationService.UserDetails().token
+                    }
+                }).success(function (data) {
+                    deferred.resolve(data);
+                }).error(function (msg, code) {
+                    deferred.reject(msg);
+                    //   $log.error(msg, code);
+                });
+                return deferred.promise;
+            },
             GetSubjects: function (userSubjects,userId) {
                 var deferred = $q.defer();
                 if(userId == undefined){

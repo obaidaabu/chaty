@@ -60,7 +60,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 controller: 'SubjectsCtrl'
             },
             'fabContent': {
-                template: '<button ui-sref="app.messages" id="fab-friends" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-chatbubbles"></i></button>',
+                template: '<button ng-controller="FabCtrl" ng-click="filter()"  id="fab-friends" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-ios-settings"></i></button>',
                 controller: function ($timeout) {
                     $timeout(function () {
                         document.getElementById('fab-friends').classList.toggle('on');
@@ -69,6 +69,23 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             }
         }
     })
+	    .state('app.addSubject', {
+		    url: '/addSubject',
+		    views: {
+			    'menuContent': {
+				    templateUrl: 'templates/addSubject.html',
+				    controller: 'AddSubjectCtrl'
+			    },
+			    'fabContent': {
+				    //template: '<button ng-controller="FabCtrl" ng-click="saveSubject()"  id="fab-friends" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-leaf"></i></button>'
+				    //controller: function ($timeout) {
+					 //
+				    //}
+				    template: '<button ng-controller="FabCtrl" ng-click="saveSubject()" id="fab-friends" class="add-subject-btn button button-fab button-fab-top-right button-energized-900"><i class="icon ion-leaf"></i></button>'
+
+			    }
+		    }
+	    })
 
     .state('app.messages', {
         url: '/messages',

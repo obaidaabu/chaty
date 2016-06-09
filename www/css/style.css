@@ -154,3 +154,9 @@ p {
 .message-read{
     color: #9FCCAC !important;
 }
+.addSubjectInput{
+    width: 100%;
+    padding: 50px 15px 15px 15px;
+    margin-left: 0px;
+    margin-right: 0px
+}
