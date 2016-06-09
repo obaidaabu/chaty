@@ -11,6 +11,17 @@ angular.module('starter.controllers', [])
 		$scope.hasHeaderFabRight = false;
 
 		$scope.userDetails = ConfigurationService.UserDetails();
+
+		var ref = new Firebase("https://chatoi.firebaseio.com/chats/" + $scope.userDetails._id);
+		ref.on("value", function (snapshot) {
+			EntityService.setMessages(snapshot)
+
+					$scope.$broadcast('someEvent', EntityService.getMessages());
+
+
+
+		});
+
 		$rootScope.$on('saveSubjectRoot', function (event, data) {
 			$scope.$broadcast('saveSubject', 'saveSubject');
 		});
@@ -155,7 +166,7 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAAZAMbMtmoBIBAHIceaihFN5jVPBILoyDD7mqZAHO2ZBB35kNOeJr1IJq0Oud8fawjZBNOVZB7DgiOhZAl5LhGNNPa5AuXr0ZA6LQoGhX805qGW2lEX2z1sZCS0jf432T7YoQ4bL12uwxSm0FbFxbVc2VB41ZBmui8G0qxxgV75yT1gZDZD',
+					fbToken: 'EAAZAMbMtmoBIBAE3R8kHw1gmALiZB5l47sz7rWWl4cBCoXGRqJNIbRM12Fi1TVIewgCQaS3hcG9AQRnIPypOYttxSu8p0BXxuK1yXnvy757cAHwTtlxB3pWnr5fyHviyGE6ZC7SdBIV0ztQXXKiTdAtKkIQqeZCEemd8PqHzlAZDZD',
 					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
 				}
@@ -229,22 +240,18 @@ angular.module('starter.controllers', [])
 
 		var myUrl = "https://chatoi.firebaseio.com/chats/" + $scope.userId + "/" + $scope.conversationId;
 		var ref = new Firebase(myUrl + "/messages");
-		var list = $firebaseArray(ref);
-		var isFirstMessage = false;
-		//var unwatch = list.$watch(function () {
-		list.$loaded()
-			.then(function (x) {
-				$scope.messages = x;
-				$ionicScrollDelegate.scrollBottom();
-				if (x.length == 0) {
-					isFirstMessage = true;
-				}
-			});
-
+		$scope.messages = $firebaseArray(ref);
+		$timeout(function(){
+			$ionicScrollDelegate.scrollBottom();
+		},300)
 
 		//});
 		$scope.sendMessage = function () {
 			$ionicScrollDelegate.scrollBottom();
+			var isFirstMessage = false;
+			if($scope.messages.length == 0){
+				isFirstMessage = true;
+			}
 			var otherUrl = "https://chatoi.firebaseio.com/chats/" + $scope.conversationId.split("-")[0] + "/" + $scope.userId + '-' + $scope.conversationId.split("-")[1];
 			var ref2, ref1;
 			if (isFirstMessage) {
@@ -299,20 +306,25 @@ angular.module('starter.controllers', [])
 						});
 				}
 			});
-			$location.hash('bottom');
 
 			delete $scope.messageContent;
 		}
 	})
-	.controller('MessagesCtrl', function ($scope, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService, UserService, EntityService) {
-		$scope.$parent.showHeader();
-		$scope.$parent.clearFabs();
-		$scope.$parent.setHeaderFab('left');
-		$scope.goToChat = function (message) {
+	.controller('MessagesCtrl', function ($scope, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService, UserService,EntityService) {
+		$scope.messages = EntityService.getMessages();
+		$scope.$on('someEvent', function(event, mass) {
+			$scope.messages = mass;
+						$timeout(function () {
+							ionicMaterialMotion.fadeSlideInRight({
+								startVelocity: 3000
+							});
+						}, 700);
+		});
 
-			var messageDetails = {
-				conversationId: message.conversationId,
-				lastMessageKey: message.lastMessageKey
+		$scope.goToChat = function (message) {
+            var messageDetails = {
+                conversationId: message.conversationId,
+                lastMessageKey: message.lastMessageKey
 
 			}
 			EntityService.setMessageDetails(messageDetails);
@@ -328,116 +340,7 @@ angular.module('starter.controllers', [])
 				});
 
 		}
-		// Delay expansion
-		$timeout(function () {
-			$scope.isExpanded = true;
-			$scope.$parent.setExpanded(true);
-		}, 300);
 
-		// Set Motion
-		ionicMaterialMotion.fadeSlideInRight();
-
-		// Set Ink
-		ionicMaterialInk.displayEffect();
-		var userDetails = ConfigurationService.UserDetails();
-		var userId = userDetails._id;
-		var ref = new Firebase("https://chatoi.firebaseio.com/chats/" + userId);
-		ref.on("child_added", function (snapshot) {
-
-			var user = snapshot.val();
-
-		});
-
-		var list = $firebaseArray(ref)
-		var unwatch = list.$watch(function () {
-
-			list.$loaded()
-				.then(function (x) {
-					$scope.messages = [];
-
-					angular.forEach(x, function (value, key) {
-
-						var conversationId = value.$id;
-						var messagesArray = Object.getOwnPropertyNames(value.messages);
-
-						var lastMessageKey = messagesArray[messagesArray.length - 1];
-
-
-						var lastMessage = value.messages[lastMessageKey].body;
-
-						var createrId = conversationId.split("-")[0];
-
-						if (window.localStorage['messages']) {
-							var localMessages = angular.fromJson(window.localStorage['messages']);
-
-							var messagIndexx = common.indexOfConv(localMessages, conversationId);
-							var readMessage = true;
-							if (messagIndexx === -1) {
-								readMessage = false;
-							}
-							else {
-								if (localMessages[messagIndexx].lastMessageKey != lastMessageKey) {
-									readMessage = false;
-								}
-							}
-						} else {
-							readMessage = false;
-						}
-
-						var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
-
-						userRef.on("value", function (userSnapshot) {
-
-							var online = true;
-							if (userSnapshot.val() == 'offline') {
-								online = false;
-
-							}
-
-							var indexx = common.indexOfConv($scope.messages, conversationId);
-							if (indexx === -1) {
-								$scope.messages.push({
-									conversationId: conversationId,
-									lastMessage: lastMessage,
-									lastMessageKey: lastMessageKey,
-									subjectName: value.subjectName,
-									fbPhotoUrl: value.fbPhotoUrl,
-									userName: value.userName,
-									online: online,
-									readMessage: readMessage
-
-								});
-							}
-							else {
-								$scope.messages[indexx] = {
-									conversationId: conversationId,
-									lastMessage: lastMessage,
-									lastMessageKey: lastMessageKey,
-									subjectName: value.subjectName,
-									fbPhotoUrl: value.fbPhotoUrl,
-									userName: value.userName,
-									online: online,
-									readMessage: readMessage
-								};
-
-							}
-
-							if (!$scope.$$phase) {
-								$scope.$apply();
-							}
-						});
-
-					}, x);
-					$timeout(function () {
-						ionicMaterialMotion.fadeSlideInRight({
-							startVelocity: 3000
-						});
-					}, 700);
-				})
-				.catch(function (error) {
-					console.log("Error:", error);
-				});
-		});
 	})
 
 	.controller('ProfileCtrl', function ($scope, $rootScope, $ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService, EntityService) {

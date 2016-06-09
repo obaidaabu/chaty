@@ -4,7 +4,7 @@ var common = new function () {
         {
             if(arr[i].conversationId===convId)
             {
-                return i=0;
+                return i;
             }
         }
         return -1;
