@@ -3,12 +3,13 @@
 
 angular.module('starter.controllers', [])
 
-	.controller('AppCtrl', function ($scope, $state, $ionicModal, $ionicPopover, $timeout, UserService, ConfigurationService,EntityService) {
+	.controller('AppCtrl', function ($rootScope, $scope, $state, $ionicModal, $ionicPopover, $timeout, UserService, ConfigurationService) {
 		// Form data for the login modal
 		$scope.loginData = {};
 		$scope.isExpanded = false;
 		$scope.hasHeaderFabLeft = false;
 		$scope.hasHeaderFabRight = false;
+
 		$scope.userDetails = ConfigurationService.UserDetails();
 
 		var ref = new Firebase("https://chatoi.firebaseio.com/chats/" + $scope.userDetails._id);
@@ -21,6 +22,9 @@ angular.module('starter.controllers', [])
 
 		});
 
+		$rootScope.$on('saveSubjectRoot', function (event, data) {
+			$scope.$broadcast('saveSubject', 'saveSubject');
+		});
 		$scope.updateUserDetails = function () {
 
 			var user = {
@@ -37,6 +41,7 @@ angular.module('starter.controllers', [])
 				});
 			//$scope.userDetails.fbPhotoUrl= 'http://brentcarnduff.com/wp-content/uploads/2014/08/url-small.jpg';
 		}
+
 		var navIcons = document.getElementsByClassName('ion-navicon');
 		for (var i = 0; i < navIcons.length; i++) {
 			navIcons.addEventListener('click', function () {
@@ -192,12 +197,12 @@ angular.module('starter.controllers', [])
 		//}, 0);
 		ionicMaterialInk.displayEffect();
 	})
-    .controller('ChatCtrl', function($scope,$ionicScrollDelegate,$location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray , ionicMaterialInk, ionicMaterialMotion, ConfigurationService, EntityService) {
+	.controller('ChatCtrl', function ($scope, $ionicScrollDelegate, $location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService, EntityService) {
 		$ionicScrollDelegate.scrollBottom();
 
 		var chatDetails = EntityService.getMessageDetails();
-        $scope.conversationId = chatDetails.conversationId;
-        $scope.lastMessageKey = chatDetails.lastMessageKey;
+		$scope.conversationId = chatDetails.conversationId;
+		$scope.lastMessageKey = chatDetails.lastMessageKey;
 		$scope.messages = [];
 		var userDetails = ConfigurationService.UserDetails();
 		$scope.userId = userDetails._id;
@@ -214,7 +219,7 @@ angular.module('starter.controllers', [])
 				localMessages.push(messageToPush)
 			}
 			else {
-				if(localMessages[messagIndexx].lastMessageKey !== $scope.lastMessageKey){
+				if (localMessages[messagIndexx].lastMessageKey !== $scope.lastMessageKey) {
 					localMessages[messagIndexx] = messageToPush;
 				}
 			}
@@ -253,15 +258,15 @@ angular.module('starter.controllers', [])
 				ref2 = new Firebase(otherUrl);
 				ref1 = new Firebase(myUrl);
 				var newMessageRef1 = ref1.push();
-                ref1.set({
+				ref1.set({
 					userName: chatDetails.userName,
 					subjectName: chatDetails.subjectName,
-					fbPhotoUrl:chatDetails.fbPhotoUrl
+					fbPhotoUrl: chatDetails.fbPhotoUrl
 				});
-				
+
 				var newMessageRef2 = ref2.push();
-                ref2.set({
-					userName:userName,
+				ref2.set({
+					userName: userName,
 					subjectName: chatDetails.subjectName,
 					fbPhotoUrl: userDetails.fbPhotoUrl
 				});
@@ -269,21 +274,21 @@ angular.module('starter.controllers', [])
 				isFirstMessage = false;
 			}
 
-				ref2 = new Firebase(otherUrl + "/messages");
-				ref1 = new Firebase(myUrl + "/messages");
-				var newMessageRef1 = ref1.push();
-				newMessageRef1.set(
-					{
-						body: $scope.messageContent,
-						sender: $scope.userId
-					}
-				);
-				var newMessageRef2 = ref2.push();
-				newMessageRef2.set(
-					{
-						body: $scope.messageContent,
-						sender: $scope.userId
-					});
+			ref2 = new Firebase(otherUrl + "/messages");
+			ref1 = new Firebase(myUrl + "/messages");
+			var newMessageRef1 = ref1.push();
+			newMessageRef1.set(
+				{
+					body: $scope.messageContent,
+					sender: $scope.userId
+				}
+			);
+			var newMessageRef2 = ref2.push();
+			newMessageRef2.set(
+				{
+					body: $scope.messageContent,
+					sender: $scope.userId
+				});
 
 			var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
 			userRef.on("value", function (userSnapshot) {
@@ -321,11 +326,11 @@ angular.module('starter.controllers', [])
                 conversationId: message.conversationId,
                 lastMessageKey: message.lastMessageKey
 
-            }
+			}
 			EntityService.setMessageDetails(messageDetails);
 			$state.go('app.chat', {conversationId: message.conversationId, lastMessageKey: message.lastMessageKey})
 		}
-		$scope.goToUserProfile = function(message){
+		$scope.goToUserProfile = function (message) {
 			var createrId = message.conversationId.split("-")[0];
 			UserService.GetUser(createrId)
 				.then(function (user) {
@@ -430,102 +435,94 @@ angular.module('starter.controllers', [])
 		//	//var conversationId = snapshot.key();
 		//});
 
-		//var list = $firebaseArray(ref)
-		//var unwatch = list.$watch(function () {
-        //
-		//	list.$loaded()
-		//		.then(function (x) {
-		//			$scope.messages = [];
-        //
-		//			angular.forEach(x, function (value, key) {
-        //
-		//				var conversationId = value.$id;
-		//				var messagesArray = Object.getOwnPropertyNames(value.messages);
-        //
-		//				var lastMessageKey = messagesArray[messagesArray.length - 1];
-        //
-        //
-        //
-		//				var lastMessage = value.messages[lastMessageKey].body;
-		//				var lastSender = value.messages[lastMessageKey].sender;
-		//				var createrId = conversationId.split("-")[0];
-		//				var readMessage = true;
-		//				if(lastSender === userId){
-		//					readMessage=true;
-		//				}else{
-		//					if (window.localStorage['messages'] && lastSender!= userId) {
-		//						var localMessages = angular.fromJson(window.localStorage['messages']);
-        //
-		//						var messagIndexx = common.indexOfConv(localMessages, conversationId);
-        //
-		//						if (messagIndexx === -1) {
-		//							readMessage = false;
-		//						}
-		//						else {
-		//							if(localMessages[messagIndexx].lastMessageKey !=lastMessageKey){
-		//								readMessage = false;
-		//							}
-		//						}
-		//					} else {
-		//						readMessage = false;
-		//					}
-		//				}
-        //
-        //
-		//				var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
-        //
-		//				userRef.on("value", function (userSnapshot) {
-        //
-		//					var online = true;
-		//					if (userSnapshot.val() == 'offline') {
-		//						online = false;
-        //
-		//					}
-        //
-		//					var indexx = common.indexOfConv($scope.messages, conversationId);
-		//					if (indexx === -1) {
-		//						$scope.messages.push({
-		//							conversationId: conversationId,
-		//							lastMessage: lastMessage,
-		//							lastMessageKey:lastMessageKey,
-         //                           subjectName: value.subjectName ,
-		//							fbPhotoUrl: value.fbPhotoUrl,
-		//							userName: value.userName,
-		//							online: online,
-		//							readMessage:readMessage
-        //
-		//						});
-		//					}
-		//					else {
-         //                       $scope.messages[indexx]= {
-		//							conversationId: conversationId,
-		//							lastMessage: lastMessage,
-		//							lastMessageKey:lastMessageKey,
-		//							subjectName: value.subjectName,
-		//							fbPhotoUrl:value.fbPhotoUrl ,
-		//							userName: value.userName,
-		//							online: online,
-		//							readMessage: readMessage
-		//						};
-        //
-		//					}
-        //
-		//					if (!$scope.$$phase) {
-		//						$scope.$apply();
-		//					}
-		//				});
-        //
-		//			}, x);
-		//			$timeout(function () {
-		//				ionicMaterialMotion.fadeSlideInRight({
-		//					startVelocity: 3000
-		//				});
-		//			}, 700);
-		//		})
-		//		.catch(function (error) {
-		//			console.log("Error:", error);
-		//		});
-		//});
+			list.$loaded()
+				.then(function (x) {
+					$scope.messages = [];
+
+					angular.forEach(x, function (value, key) {
+
+						var conversationId = value.$id;
+						var messagesArray = Object.getOwnPropertyNames(value.messages);
+
+						var lastMessageKey = messagesArray[messagesArray.length - 1];
+
+
+
+						var lastMessage = value.messages[lastMessageKey].body;
+
+						var createrId = conversationId.split("-")[0];
+
+						if (window.localStorage['messages']) {
+							var localMessages = angular.fromJson(window.localStorage['messages']);
+
+							var messagIndexx = common.indexOfConv(localMessages, conversationId);
+							var readMessage = true;
+							if (messagIndexx === -1) {
+								readMessage = false;
+							}
+							else {
+								if(localMessages[messagIndexx].lastMessageKey !=lastMessageKey){
+									readMessage = false;
+								}
+							}
+						} else {
+							readMessage = false;
+						}
+
+						var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
+
+						userRef.on("value", function (userSnapshot) {
+
+							var online = true;
+							if (userSnapshot.val() == 'offline') {
+								online = false;
+
+							}
+
+							var indexx = common.indexOfConv($scope.messages, conversationId);
+							if (indexx === -1) {
+								$scope.messages.push({
+									conversationId: conversationId,
+									lastMessage: lastMessage,
+									lastMessageKey:lastMessageKey,
+                                    subjectName: value.subjectName ,
+									fbPhotoUrl: value.fbPhotoUrl,
+									userName: value.userName,
+									online: online,
+									readMessage:readMessage
+
+								});
+							}
+							else {
+                                $scope.messages[indexx]= {
+									conversationId: conversationId,
+									lastMessage: lastMessage,
+									lastMessageKey:lastMessageKey,
+									subjectName: value.subjectName,
+									fbPhotoUrl:value.fbPhotoUrl ,
+									userName: value.userName,
+									online: online,
+									readMessage: readMessage
+								};
+
+							}
+
+							if (!$scope.$$phase) {
+								$scope.$apply();
+							}
+						});
+
+					}, x);
+					$timeout(function () {
+						ionicMaterialMotion.fadeSlideInRight({
+							startVelocity: 3000
+						});
+					}, 700);
+				})
+				.catch(function (error) {
+					console.log("Error:", error);
+				});
+		});
 	})
 
 	.controller('ProfileCtrl', function ($scope, $rootScope, $ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService, EntityService) {
@@ -537,7 +534,7 @@ angular.module('starter.controllers', [])
 		$scope.userProfile = angular.fromJson(window.localStorage['user']);
 		$scope.subjects = [];
 		$scope.deleteSubject = function (subject) {
-			EntityService.deleteFromArray($scope.subjects,subject)
+			EntityService.deleteFromArray($scope.subjects, subject)
 			SubjectService.DeleteSubjects(subject)
 				.then(function () {
 
@@ -641,6 +638,50 @@ angular.module('starter.controllers', [])
 
 
 	})
+	.controller('AddSubjectCtrl', function ($scope, $rootScope, $state, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, SubjectService, EntityService) {
+		$scope.$parent.showHeader();
+		$scope.$parent.clearFabs();
+		$scope.isExpanded = true;
+		$scope.$parent.setExpanded(true);
+		$scope.$parent.setHeaderFab('right');
+		$scope.categories = [];
+		$scope.subject={};
+		$scope.goToUserProfile = function (user) {
+			EntityService.setProfile(user);
+			$state.go("app.profile");
+		}
+		SubjectService.GetCategories()
+			.then(function (categories) {
+				$scope.categories = categories;
+				$timeout(function () {
+					ionicMaterialMotion.fadeSlideIn({
+						selector: '.animate-fade-slide-in .item'
+					});
+				}, 200);
+			}, function (err) {
+			});
+
+		ionicMaterialInk.displayEffect();
+		$scope.$on('saveSubject', function (event, data) {
+			createSubject();
+		});
+		function createSubject() {
+			$scope.subject.categories = [];
+			for (var i = 0; i < $scope.categories.length; i++) {
+				if ($scope.categories[i].isSelected) {
+					$scope.subject.categories.push($scope.categories[i]._id);
+				}
+			}
+
+			SubjectService.CreateSubject($scope.subject)
+				.then(function () {
+					$state.go("app.profile");
+				}, function (err) {
+					$state.go("app.profile");
+				});
+		}
+
+	})
 
 	.controller('GalleryCtrl', function ($scope, $stateParams, $timeout, ionicMaterialInk, ionicMaterialMotion) {
 		$scope.$parent.showHeader();
@@ -660,62 +701,105 @@ angular.module('starter.controllers', [])
 		});
 
 	})
-	.controller('FabCtrl', function ($scope,$rootScope, $stateParams, $timeout, ionicMaterialInk, ionicMaterialMotion,$ionicPopup,ConfigurationService,SubjectService) {
-
-	$scope.createSubject = function () {
-
-		$scope.subject = {
-			title: "",
-			user: "",
-			description: ""
-		}
-		// An elaborate, custom popup
-		var myPopup = $ionicPopup.show({
-			template: 'title:<input type="text" ng-model="subject.title">description:<textarea class="subject-desciption" ng-model="subject.description"></textarea>',
-			title: 'add subject',
-			cssClass: 'addSubjectPopup',
+	.controller('FabCtrl', function ($scope, $state, $rootScope, $ionicModal, $stateParams, $timeout, ionicMaterialInk, ionicMaterialMotion, $ionicPopup, ConfigurationService, SubjectService) {
+		$ionicModal.fromTemplateUrl('templates/filter.html', {
 			scope: $scope,
-			buttons: [
-				{
-					text: '<b>Add</b>',
-					type: 'button-calm',
-					onTap: function (e) {
-						if ($scope.subject.title == '') {
-							//don't allow the user to close unless he enters wifi password
-							e.preventDefault();
-						} else {
-							return ConfigurationService.UserDetails()._id;
-						}
-					}
-				},
-				{text: 'Cancel'}
-
-			]
+			animation: 'slide-in-up'
+		}).then(function (modal) {
+			$scope.modal = modal;
 		});
-
-		myPopup.then(function (res) {
-
-			if (res) {
-
-				$scope.subject.user = res;
-				SubjectService.CreateSubject($scope.subject)
-					.then(function () {
-						
-						$rootScope.$emit('renderSubjectList', 'new subjects list');
-						//$timeout(function () {
-						//	$scope.subjects.push($scope.subject);
-						//	ionicMaterialMotion.fadeSlideInRight({
-						//		startVelocity: 3000
-						//	});
-						//}, 700);
-					}, function (err) {
-					});
-
-
-			}
+		//$timeout(function () {
+		//	document.getElementById('fab-friends').classList.toggle('on');
+		//}, 900);
+		$scope.filter=function(){
+			$scope.openModal();
+		}
+		$timeout(function () {
+			var elements = document.getElementById('fab-friends');
+			if (elements && elements.length > 0)
+				elements.classList.toggle('on');
+		}, 900);
+		$scope.createSubject = function () {
+			//$scope.openModal();
+			$state.go('app.addSubject');
+		}
+		$scope.saveSubject = function () {
+			//$scope.openModal();
+			//$state.go('app.addSubject');
+			$rootScope.$emit('saveSubjectRoot', 'saveSubjectRoot');
+		}
+		$scope.openModal = function () {
+			$scope.modal.show();
+		};
+		$scope.closeModal = function () {
+			$scope.modal.hide();
+		};
+		// Cleanup the modal when we're done with it!
+		$scope.$on('$destroy', function () {
+			$scope.modal.remove();
 		});
-
-	};
-})
+		// Execute action on hide modal
+		$scope.$on('modal.hidden', function () {
+			// Execute action
+		});
+		// Execute action on remove modal
+		$scope.$on('modal.removed', function () {
+			// Execute action
+		});
+		//$scope.createSubject = function () {
+		//
+		//	$scope.subject = {
+		//		title: "",
+		//		user: "",
+		//		description: ""
+		//	}
+		//	// An elaborate, custom popup
+		//	var myPopup = $ionicPopup.show({
+		//		template: 'title:<input type="text" ng-model="subject.title">description:<textarea class="subject-desciption" ng-model="subject.description"></textarea>',
+		//		title: 'add subject',
+		//		cssClass: 'addSubjectPopup',
+		//		scope: $scope,
+		//		buttons: [
+		//			{
+		//				text: '<b>Add</b>',
+		//				type: 'button-calm',
+		//				onTap: function (e) {
+		//					if ($scope.subject.title == '') {
+		//						//don't allow the user to close unless he enters wifi password
+		//						e.preventDefault();
+		//					} else {
+		//						return ConfigurationService.UserDetails()._id;
+		//					}
+		//				}
+		//			},
+		//			{text: 'Cancel'}
+		//
+		//		]
+		//	});
+		//
+		//	myPopup.then(function (res) {
+		//
+		//		if (res) {
+		//
+		//			$scope.subject.user = res;
+		//			SubjectService.CreateSubject($scope.subject)
+		//				.then(function () {
+		//
+		//					$rootScope.$emit('renderSubjectList', 'new subjects list');
+		//					//$timeout(function () {
+		//					//	$scope.subjects.push($scope.subject);
+		//					//	ionicMaterialMotion.fadeSlideInRight({
+		//					//		startVelocity: 3000
+		//					//	});
+		//					//}, 700);
+		//				}, function (err) {
+		//				});
+		//
+		//
+		//		}
+		//	});
+		//
+		//};
+	})
 
 ;
