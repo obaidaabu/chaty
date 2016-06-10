@@ -168,3 +168,24 @@ font-weight: normal;
     font-size: initial;
     padding-left: 5px;
 }
+.filterIcon {
+    min-width: auto !important;
+    min-height: auto !important;
+    height: 40px !important;
+    width: 40px !important;
+    background-color: #1C5896 !important;
+}
+.filterIcon i{
+    top: 5px;
+    left: 11px;
+    position: absolute;
+    font-size: 1.5rem !important;
+}
+ion-header-bar .filterHeader.title{
+    text-align: center !important;
+    margin-right: 22px !important;
+    top: 23% !important;
+}
+.custom-has-expanded-header {
+    top: 75px!important;
+}

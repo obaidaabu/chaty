@@ -12,6 +12,14 @@ angular.module('starter.controllers', [])
 
 		$scope.userDetails = ConfigurationService.UserDetails();
 		$scope.unreadMessages = false;
+		$rootScope.$on('renderSubjectListh', function (event, data) {
+			$timeout(function(){
+				$scope.$broadcast('aaaaa', 'renderSubjectList');
+
+			},400);
+
+		});
+
 		var ref = new Firebase("https://chatoi.firebaseio.com/chats/" + $scope.userDetails._id);
 		ref.on("value", function (snapshot) {
 			if(snapshot.val()){
@@ -187,7 +195,7 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAAZAMbMtmoBIBAJHjv4AdAnzoYdhXZCaNsXE9kYTQ64B6q2YSaASVVv7cDsK9APqi6syrqzWTEGLADPkyWCNfvigiTODt2vhbpEP5pxQycg7MkZCr1tZAkzYZAUo6NqvYo90Q4V7aPL1A6zqnFz9ylnI7ss47PZCDx7dmO0St47mol7yIfbXBF',
+					fbToken: 'EAACEdEose0cBAEFojbGL0sT14oomuPY7G6zfAoOa1msYKTuNdt4E6CGP7XuyiwnqTIwxMZCQOPZBZBv6mnOKLryVZAAvKGLo0fQc8wWDvT5JnC4RGPQBRZCi15a9yEaS4gcyZCilefehXALnHR87Ir9wUke6wJ82MpR6jLsLW4DwZDZD',
 					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
 				}
@@ -271,8 +279,8 @@ angular.module('starter.controllers', [])
 
 		});
 		hanleMyMessageRead.set(true);
-
-		$timeout(function(){
+		
+		$timeout(function () {
 			$ionicScrollDelegate.scrollBottom();
 		},300)
 
@@ -339,32 +347,31 @@ angular.module('starter.controllers', [])
 				}
 			);
 
-			conversationOterUserRef.on('value', function(snapshot) {
+			conversationOterUserRef.on('value', function (snapshot) {
 				if (snapshot.val()) {
-
-
+					
 				}else{
 					debugger
 					hanleOtherMessageRead.set(false);
 
 				}
 			});
-				var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
-				userRef.on("value", function (userSnapshot) {
-					if (userSnapshot.val() == 'offline') {
+			var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
+			userRef.on("value", function (userSnapshot) {
+				if (userSnapshot.val() == 'offline') {
 
-						var message = {
-							user: createrId,
-							message: $scope.messageContent,
-							conversationId: $scope.userId + "-" + subjectId
-						}
-						//NotificationService.SendMessage(message)
-						//	.then(function (message) {
-						//
-						//	}, function (err) {
-						//	});
+					var message = {
+						user: createrId,
+						message: $scope.messageContent,
+						conversationId: $scope.userId + "-" + subjectId
 					}
-				});
+					//NotificationService.SendMessage(message)
+					//	.then(function (message) {
+					//
+					//	}, function (err) {
+					//	});
+				}
+			});
 
 
 
@@ -383,9 +390,9 @@ angular.module('starter.controllers', [])
 		});
 
 		$scope.goToChat = function (message) {
-            var messageDetails = {
-                conversationId: message.conversationId,
-                lastMessageKey: message.lastMessageKey
+			var messageDetails = {
+				conversationId: message.conversationId,
+				lastMessageKey: message.lastMessageKey
 
 			}
 			EntityService.setMessageDetails(messageDetails);
@@ -524,7 +531,7 @@ angular.module('starter.controllers', [])
 		$scope.$parent.setExpanded(true);
 		$scope.$parent.setHeaderFab('right');
 		$scope.categories = [];
-		$scope.subject={};
+		$scope.subject = {};
 		$scope.goToUserProfile = function (user) {
 			EntityService.setProfile(user);
 			$state.go("app.profile");
@@ -580,43 +587,48 @@ angular.module('starter.controllers', [])
 		});
 
 	})
-	.controller('FabCtrl', function ($scope, $state, $rootScope, $ionicModal, $stateParams, $timeout, ionicMaterialInk, ionicMaterialMotion, $ionicPopup, ConfigurationService, SubjectService) {
+	.controller('FabCtrl', function ($scope,$window, $state, $ionicHistory, $rootScope, $ionicModal, $stateParams, $timeout, ionicMaterialInk, ionicMaterialMotion, $ionicPopup, ConfigurationService, SubjectService) {
 		$ionicModal.fromTemplateUrl('templates/filter.html', {
 			scope: $scope,
 			animation: 'slide-in-up'
 		}).then(function (modal) {
 			$scope.modal = modal;
 		});
-		$scope.categories=[];
-		if(!window.localStorage["myFilter"]) {
+		$scope.categories = [];
+		if (!window.localStorage["myFilter"]) {
 			$scope.myFilter = {
 				nearMe: false,
 				gender: 'both',
 				categories: {}
 			}
-			window.localStorage["myFilter"]=angular.toJson($scope.myFilter);
+			window.localStorage["myFilter"] = angular.toJson($scope.myFilter);
 		}
-		else
-		{
-			$scope.myFilter=angular.fromJson(window.localStorage["myFilter"]);
+		else {
+			$scope.myFilter = angular.fromJson(window.localStorage["myFilter"]);
 		}
-		$scope.saveFilter=function(){
+		$scope.saveFilter = function () {
 
-			angular.forEach($scope.myFilter.categories, function(value, key) {
-				if(!value)
-				{
-					 delete $scope.myFilter.categories[key];
+			angular.forEach($scope.myFilter.categories, function (value, key) {
+				if (!value) {
+					delete $scope.myFilter.categories[key];
 				}
 			});
-			window.localStorage["myFilter"]=angular.toJson($scope.myFilter);
-			//Object.keys($scope.myFilter)
-			//console.log($scope.myFilter)
-			//debugger
+			debugger
+			window.localStorage["myFilter"] = angular.toJson($scope.myFilter);
+			$scope.closeModal();
+			$window.location.reload(true);
+			//$state.go('app.subjects', {}, {reload: true});
+			//$state.go('app.subjects');
+
+		}
+		$scope.closeFilterModal = function () {
+			$scope.closeModal();
+
 		}
 		//$timeout(function () {
 		//	document.getElementById('fab-friends').classList.toggle('on');
 		//}, 900);
-		$scope.filter=function(){
+		$scope.filter = function () {
 			SubjectService.GetCategories()
 				.then(function (categories) {
 					$scope.categories = categories;

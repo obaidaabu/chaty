@@ -1,10 +1,11 @@
 <!--<script id="addSubject.html" type="text/ng-template">-->
 <ion-modal-view>
-    <ion-header-bar>
-        <h1 class="title">Filter</h1>
-        <button ng-click="saveFilter()">Save</button>
+    <ion-header-bar class="expanded" align-title="center">
+        <button ng-click="saveFilter()"  class="filterIcon button button-fab button-fab-bottom-right button-energized-900"><i class="ion-checkmark-round"></i></button>
+        <h1 class="title filterHeader">Filter</h1>
+        <button ng-click="closeFilterModal()"  class="filterIcon button button-fab button-fab-bottom-left button-energized-900"><i class="ion-close-round"></i></button>
     </ion-header-bar>
-    <ion-content>
+    <ion-content class="custom-has-expanded-header">
         <div class="list card stable-bg">
             <div class="item item-body">
                 <li class="item item-toggle cardSubTitle">
