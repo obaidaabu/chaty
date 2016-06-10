@@ -7,6 +7,15 @@
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.directives', 'ionic-material', 'ionMdInput', 'firebase', 'ngCordova', 'angularMoment'])
 
 	.run(function ($ionicPlatform, $state) {
+        $ionicPlatform.on('pause', function() {
+            Firebase.goOffline();
+
+        });
+        $ionicPlatform.on('resume', function() {
+            Firebase.goOnline();
+
+        });
+
 		$ionicPlatform.ready(function () {
 			// Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
 			// for form inputs)
@@ -17,6 +26,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 				// org.apache.cordova.statusbar required
 				StatusBar.styleDefault();
 			}
+
 			//window.localStorage.clear();
 			if (window.localStorage['user']) {
 				var user = angular.fromJson(window.localStorage['user']);

@@ -184,7 +184,7 @@ angular.module('starter.services', [])
             }
         }
     })
-    .factory('EntityService', function (ConfigurationService) {
+    .factory('EntityService', function (ConfigurationService,$q) {
         var otherProfile = null;
         var messageToDeal = null;
         var messages = [];
@@ -210,75 +210,74 @@ angular.module('starter.services', [])
         var getMessageDetails = function(){
             return messageToDeal;
         }
+        var checkUnreadMessages = function(){
+            for(var i = 0; i< messages.length; i++){
+                if(messages[i].read = false){
+                    return true;
+                }
+            }
+            return false;
+        }
         var setMessages = function(snapshot){
+            var deferred = $q.defer();
             var userDetails=ConfigurationService.UserDetails();
             angular.forEach(snapshot.val(), function (value, key) {
                 var conversationId = key;
-                var messagesArray = Object.getOwnPropertyNames(value.messages);
+                if(value.messages){
+                    var messagesArray = Object.getOwnPropertyNames(value.messages);
 
-                var lastMessageKey = messagesArray[messagesArray.length - 1];
+                    var lastMessageKey = messagesArray[messagesArray.length - 1];
 
+                    var lastMessage = value.messages[lastMessageKey].body;
+                    var lastSender = value.messages[lastMessageKey].sender;
 
-                var lastMessage = value.messages[lastMessageKey].body;
-                var lastSender = value.messages[lastMessageKey].sender;
-                var createrId = conversationId.split("-")[0];
-                var readMessage = true;
-                if (lastSender === userDetails._id) {
-                    readMessage = true;
-                } else {
-                    if (window.localStorage['messages'] && lastSender != userDetails._id) {
-                        var localMessages = angular.fromJson(window.localStorage['messages']);
+                    var createrId = conversationId.split("-")[0];
 
-                        var messagIndexx = common.indexOfConv(localMessages, conversationId);
-
-                        if (messagIndexx === -1) {
-                            readMessage = false;
-                        }
-                        else {
-                            if (localMessages[messagIndexx].lastMessageKey != lastMessageKey) {
-                                readMessage = false;
-                            }
-                        }
-                    } else {
-                        readMessage = false;
+                    var readMessage = false;
+                    if(value.read){
+                        readMessage = value.read;
                     }
-                }
-                var indexx = common.indexOfConv(messages, conversationId);
-                var msg = {
-                    conversationId: conversationId,
-                    lastMessage: lastMessage,
-                    lastMessageKey: lastMessageKey,
-                    subjectName: value.subjectName,
-                    fbPhotoUrl: value.fbPhotoUrl,
-                    userName: value.userName,
-                    //online: online,
-                    readMessage: readMessage
 
-                }
-
-                if (indexx === -1) {
-                    messages.push(msg);
-                }
-                else {
-                    messages[indexx] = msg;
-
-                }
-                var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
-                userRef.on("value", function (userSnapshot) {
-
-                    var online = true;
-                    if (userSnapshot.val() == 'offline') {
-                        online = false;
-
-                    }
 
                     var indexx = common.indexOfConv(messages, conversationId);
+                    var msg = {
+                        conversationId: conversationId,
+                        lastMessage: lastMessage,
+                        lastMessageKey: lastMessageKey,
+                        subjectName: value.subjectName,
+                        fbPhotoUrl: value.fbPhotoUrl,
+                        userName: value.userName,
+                        //online: online,
+                        readMessage: readMessage
 
-                    messages[indexx].online = online
+                    }
 
+                    if (indexx === -1) {
+                        messages.push(msg);
+                    }
+                    else {
+                        messages[indexx] = msg;
 
-                });
+                    }
+                    var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
+                    userRef.on("value", function (userSnapshot) {
+
+                        var online = true;
+                        if (userSnapshot.val() == 'offline') {
+                            online = false;
+
+                        }
+
+                        var indexx = common.indexOfConv(messages, conversationId);
+
+                        messages[indexx].online = online
+
+                    });
+                }
+
             });
+            deferred.resolve(messages);
+            return deferred.promise;
         }
         var getMessages = function(){
             return messages;
@@ -290,6 +289,7 @@ angular.module('starter.services', [])
             setMessageDetails : setMessageDetails,
             getMessageDetails: getMessageDetails,
             setMessages: setMessages,
-            getMessages: getMessages
+            getMessages: getMessages,
+            checkUnreadMessages: checkUnreadMessages
         };
     });

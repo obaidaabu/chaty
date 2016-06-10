@@ -11,18 +11,38 @@ angular.module('starter.controllers', [])
 		$scope.hasHeaderFabRight = false;
 
 		$scope.userDetails = ConfigurationService.UserDetails();
-
+		$scope.unreadMessages = false;
 		var ref = new Firebase("https://chatoi.firebaseio.com/chats/" + $scope.userDetails._id);
 		ref.on("value", function (snapshot) {
 			if(snapshot.val()){
-				EntityService.setMessages(snapshot)
+				EntityService.setMessages(snapshot).then(function(messages){
+					$scope.unreadMessages = EntityService.checkUnreadMessages();
+					$scope.$broadcast('sendMessagesEvent', 'sendMessagesEvent');
+				})
 
-				$scope.$broadcast('someEvent', EntityService.getMessages());
 			}
-
-
+		});
+		var amOnline = new Firebase('https://chatoi.firebaseio.com/.info/connected');
+		var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + $scope.userDetails._id);
+		var conversationUserRef = new Firebase('https://chatoi.firebaseio.com/conversationOnline/' + $scope.userDetails._id);
+		amOnline.on('value', function(snapshot) {
+			if (snapshot.val()) {
+				userRef.onDisconnect().set('offline');
+				conversationUserRef.onDisconnect().remove();
+				userRef.set('online');
+			}
 		});
 
+		$rootScope.$on('$stateChangeStart',
+			function(event, toState, toParams, fromState, fromParams, options){
+
+				if(toState.name !== "app.chat"){
+
+					conversationUserRef.remove();
+				}
+				// transitionTo() promise will be rejected with
+				// a 'transition prevented' error
+			})
 		$rootScope.$on('saveSubjectRoot', function (event, data) {
 			$scope.$broadcast('saveSubject', 'saveSubject');
 		});
@@ -167,7 +187,7 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAACEdEose0cBAEFojbGL0sT14oomuPY7G6zfAoOa1msYKTuNdt4E6CGP7XuyiwnqTIwxMZCQOPZBZBv6mnOKLryVZAAvKGLo0fQc8wWDvT5JnC4RGPQBRZCi15a9yEaS4gcyZCilefehXALnHR87Ir9wUke6wJ82MpR6jLsLW4DwZDZD',
+					fbToken: 'EAAZAMbMtmoBIBAJHjv4AdAnzoYdhXZCaNsXE9kYTQ64B6q2YSaASVVv7cDsK9APqi6syrqzWTEGLADPkyWCNfvigiTODt2vhbpEP5pxQycg7MkZCr1tZAkzYZAUo6NqvYo90Q4V7aPL1A6zqnFz9ylnI7ss47PZCDx7dmO0St47mol7yIfbXBF',
 					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
 				}
@@ -244,12 +264,13 @@ angular.module('starter.controllers', [])
 
 		var conversationUserRef = new Firebase('https://chatoi.firebaseio.com/conversationOnline/' + $scope.userDetails._id);
 		var conversationOterUserRef = new Firebase('https://chatoi.firebaseio.com/conversationOnline/' + createrId);
-		var hanleOtherMessageRead = new Firebase(otherUrl + "/unRead");
+		var hanleMyMessageRead = new Firebase(myUrl + "/read");
+		var hanleOtherMessageRead = new Firebase(otherUrl + "/read");
 		conversationUserRef.set({
 			conversationId: $scope.conversationId,
 
 		});
-
+		hanleMyMessageRead.set(true);
 
 		$timeout(function(){
 			$ionicScrollDelegate.scrollBottom();
@@ -275,7 +296,9 @@ angular.module('starter.controllers', [])
 				ref1.set({
 					userName: chatDetails.userName,
 					subjectName: chatDetails.subjectName,
-					fbPhotoUrl: chatDetails.fbPhotoUrl
+					fbPhotoUrl: chatDetails.fbPhotoUrl,
+					read: true
+
 				});
 				ref2.set({
 					userName: userName,
@@ -285,19 +308,20 @@ angular.module('starter.controllers', [])
 
 
 				conversationOterUserRef.on('value', function(snapshot) {
-					debugger;
+
 					if (snapshot.val()) {
 
 
 					}else{
-						hanleOtherMessageRead.set(true);
+						debugger
+						hanleOtherMessageRead.set(false);
 					}
 
 				});
 				isFirstMessage = false;
 			}
 
-			debugger;
+
 			ref2 = new Firebase(otherUrl + "/messages");
 			ref1 = new Firebase(myUrl + "/messages");
 			var newMessageRef1 = ref1.push();
@@ -317,12 +341,12 @@ angular.module('starter.controllers', [])
 
 			conversationOterUserRef.on('value', function(snapshot) {
 				if (snapshot.val()) {
-					debugger;
+
 
 				}else{
-
-					hanleOtherMessageRead.set(true);
 					debugger
+					hanleOtherMessageRead.set(false);
+
 				}
 			});
 				var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
@@ -349,8 +373,8 @@ angular.module('starter.controllers', [])
 	})
 	.controller('MessagesCtrl', function ($scope, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService, UserService,EntityService) {
 		$scope.messages = EntityService.getMessages();
-		$scope.$on('someEvent', function(event, mass) {
-			$scope.messages = mass;
+		$scope.$on('sendMessagesEvent', function(event, mass) {
+			$scope.messages = EntityService.getMessages();
 						$timeout(function () {
 							ionicMaterialMotion.fadeSlideInRight({
 								startVelocity: 3000
