@@ -526,10 +526,46 @@ angular.module('starter.controllers', [])
 		}).then(function (modal) {
 			$scope.modal = modal;
 		});
+		$scope.categories=[];
+		if(!window.localStorage["myFilter"]) {
+			$scope.myFilter = {
+				nearMe: false,
+				gender: 'both',
+				categories: {}
+			}
+			window.localStorage["myFilter"]=angular.toJson($scope.myFilter);
+		}
+		else
+		{
+			$scope.myFilter=angular.fromJson(window.localStorage["myFilter"]);
+		}
+		$scope.saveFilter=function(){
+
+			angular.forEach($scope.myFilter.categories, function(value, key) {
+				if(!value)
+				{
+					 delete $scope.myFilter.categories[key];
+				}
+			});
+			window.localStorage["myFilter"]=angular.toJson($scope.myFilter);
+			//Object.keys($scope.myFilter)
+			//console.log($scope.myFilter)
+			//debugger
+		}
 		//$timeout(function () {
 		//	document.getElementById('fab-friends').classList.toggle('on');
 		//}, 900);
 		$scope.filter=function(){
+			SubjectService.GetCategories()
+				.then(function (categories) {
+					$scope.categories = categories;
+					$timeout(function () {
+						ionicMaterialMotion.fadeSlideIn({
+							selector: '.animate-fade-slide-in .item'
+						});
+					}, 200);
+				}, function (err) {
+				});
 			$scope.openModal();
 		}
 		$timeout(function () {

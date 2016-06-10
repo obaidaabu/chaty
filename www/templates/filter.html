@@ -2,53 +2,53 @@
 <ion-modal-view>
     <ion-header-bar>
         <h1 class="title">Filter</h1>
+        <button ng-click="saveFilter()">Save</button>
     </ion-header-bar>
     <ion-content>
-
-        <div class="list">
-            <li class="item item-toggle">
-                Near me ?
-                <label class="toggle toggle-assertive">
-                    <input type="checkbox">
-                    <div class="track">
-                        <div class="handle"></div>
-                    </div>
-                </label>
-            </li>
-            <label class="item item-input item-stacked-label">
-                <span class="input-label">With who?</span>
-
-            </label>
+        <div class="list card stable-bg">
+            <div class="item item-body">
+                <li class="item item-toggle cardSubTitle">
+                    Near me ?
+                    <label class="toggle toggle-assertive">
+                        <input type="checkbox"  ng-model="myFilter.nearMe">
+                        <div class="track">
+                            <div class="handle"></div>
+                        </div>
+                    </label>
+                </li>
+            </div>
         </div>
         <div class="list card stable-bg">
             <div class="item item-body">
-                <h2>Near me ?</h2>
-                <label class="item item-radio"> <input type="radio" name="group">
+                <h2>With who ?</h2>
+                <label class="item item-radio">
+                    <input type="radio" value="male" ng-model="myFilter.gender" name="group">
                     <div class="item-content">Male</div>
-                    <i class="radio-icon ion-checkmark"></i> </label> <label class="item item-radio"> <input
+                    <i class="radio-icon ion-checkmark"></i>
+                </label> <label class="item item-radio"> <input
                     type="radio"
+                    ng-model="myFilter.gender"
+                    value="female"
                     name="group">
                 <div class="item-content">Female</div>
                 <i class="radio-icon ion-checkmark"></i> </label> <label class="item item-radio"> <input type="radio"
+                                                                                                         value="both"
+                                                                                                         ng-model="myFilter.gender"
                                                                                                          name="group">
                 <div class="item-content">Both</div>
                 <i class="radio-icon ion-checkmark"></i> </label>
             </div>
         </div>
         <div class="list card stable-bg">
-            <div class="item item-avatar"><img src="img/arya.jpg">
-                <h2>Arya Stark</h2>
-                <p>"Joffrey. Cersei. Ilyn Payne. Hound. Polliver. The Mountain."</p>
+            <div class="item item-body">
+                <h2>Interests ?</h2>
+                <div class="item item-checkbox" ng-repeat="category in categories">
+                    <label class="checkbox">
+                        <input type="checkbox" ng-model="myFilter.categories[category._id]">
+                    </label>
+                    {{category.name}}
+                </div>
             </div>
-            <div class="item item-body"> The quickest way to a man's heart is through Arya's needle. She has two speeds:
-                Walk and Kill, and is the reason why Waldo is still hiding. <p><a class="subdued">1 Like</a> <a
-                        class="subdued">5 Comments</a></p></div>
-            <div class="item tabs tabs-secondary tabs-icon-left"><a class="tab-item" data-ink-color="#336699"
-                                                                    data-ink-opacity="0.5"> <i
-                    class="icon ion-thumbsup"></i> Like </a> <a class="tab-item" data-ink-color="#336699"
-                                                                data-ink-opacity="0.5"> <i class="icon ion-chatbox"></i>
-                Comment </a> <a class="tab-item" data-ink-color="#336699" data-ink-opacity="0.5"> <i
-                    class="icon ion-share"></i> Share </a></div>
         </div>
 
         <!--</div>-->
