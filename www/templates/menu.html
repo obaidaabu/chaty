@@ -6,7 +6,10 @@
 
             <ion-nav-buttons side="right">
                 <button ui-sref="app.messages" class="button button-icon button-clear ion-chatbubbles">
+                    <i ng-if="$root.unreadMessages" ui-sref="app.messages" class="button button-icon button-clear ion-more new-Messages-dot">
+                    </i>
                 </button>
+
 
                 <button class="button button-icon button-clear ion-android-more-vertical" menu-toggle="right">
                 </button>

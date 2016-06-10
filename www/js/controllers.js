@@ -11,7 +11,7 @@ angular.module('starter.controllers', [])
 		$scope.hasHeaderFabRight = false;
 
 		$scope.userDetails = ConfigurationService.UserDetails();
-		$scope.unreadMessages = false;
+		$rootScope.unreadMessages = false;
 		$rootScope.$on('renderSubjectListh', function (event, data) {
 			$timeout(function(){
 				$scope.$broadcast('aaaaa', 'renderSubjectList');
@@ -24,7 +24,7 @@ angular.module('starter.controllers', [])
 		ref.on("value", function (snapshot) {
 			if(snapshot.val()){
 				EntityService.setMessages(snapshot).then(function(messages){
-					$scope.unreadMessages = EntityService.checkUnreadMessages();
+					$rootScope.unreadMessages = EntityService.checkUnreadMessages();
 					$scope.$broadcast('sendMessagesEvent', 'sendMessagesEvent');
 				})
 
@@ -314,18 +314,14 @@ angular.module('starter.controllers', [])
 					fbPhotoUrl: userDetails.fbPhotoUrl
 				});
 
-
-				conversationOterUserRef.on('value', function(snapshot) {
-
-					if (snapshot.val()) {
-
-
-					}else{
-						debugger
+				var aa = $firebaseObject(conversationOterUserRef);
+				aa.$loaded(function(value){
+					if(!value.conversationId){
 						hanleOtherMessageRead.set(false);
 					}
 
-				});
+				})
+
 				isFirstMessage = false;
 			}
 
@@ -346,16 +342,14 @@ angular.module('starter.controllers', [])
 					sender: $scope.userId
 				}
 			);
-
-			conversationOterUserRef.on('value', function (snapshot) {
-				if (snapshot.val()) {
-					
-				}else{
-					debugger
+			var aa = $firebaseObject(conversationOterUserRef);
+			aa.$loaded(function(value){
+				if(!value.conversationId){
 					hanleOtherMessageRead.set(false);
-
 				}
-			});
+
+			})
+
 			var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
 			userRef.on("value", function (userSnapshot) {
 				if (userSnapshot.val() == 'offline') {
@@ -613,7 +607,6 @@ angular.module('starter.controllers', [])
 					delete $scope.myFilter.categories[key];
 				}
 			});
-			debugger
 			window.localStorage["myFilter"] = angular.toJson($scope.myFilter);
 			$scope.closeModal();
 			$window.location.reload(true);

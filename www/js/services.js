@@ -212,7 +212,7 @@ angular.module('starter.services', [])
         }
         var checkUnreadMessages = function(){
             for(var i = 0; i< messages.length; i++){
-                if(messages[i].read = false){
+                if(messages[i].readMessage === false){
                     return true;
                 }
             }

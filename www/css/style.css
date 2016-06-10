@@ -189,3 +189,13 @@ ion-header-bar .filterHeader.title{
 .custom-has-expanded-header {
     top: 75px!important;
 }
+.new-Messages-dot{
+    display: inline !important;
+    position: absolute !important;
+    top: 5px !important;
+    right: -2px !important;
+    color: red !important;
+}
+.new-Messages-dot:before{
+    font-size: 14px !important;
+}
