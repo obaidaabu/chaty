@@ -14,10 +14,11 @@ angular.module('starter.controllers', [])
 
 		var ref = new Firebase("https://chatoi.firebaseio.com/chats/" + $scope.userDetails._id);
 		ref.on("value", function (snapshot) {
-			EntityService.setMessages(snapshot)
+			if(snapshot.val()){
+				EntityService.setMessages(snapshot)
 
-					$scope.$broadcast('someEvent', EntityService.getMessages());
-
+				$scope.$broadcast('someEvent', EntityService.getMessages());
+			}
 
 
 		});
@@ -166,7 +167,7 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAAZAMbMtmoBIBAE3R8kHw1gmALiZB5l47sz7rWWl4cBCoXGRqJNIbRM12Fi1TVIewgCQaS3hcG9AQRnIPypOYttxSu8p0BXxuK1yXnvy757cAHwTtlxB3pWnr5fyHviyGE6ZC7SdBIV0ztQXXKiTdAtKkIQqeZCEemd8PqHzlAZDZD',
+					fbToken: 'EAACEdEose0cBAEFojbGL0sT14oomuPY7G6zfAoOa1msYKTuNdt4E6CGP7XuyiwnqTIwxMZCQOPZBZBv6mnOKLryVZAAvKGLo0fQc8wWDvT5JnC4RGPQBRZCi15a9yEaS4gcyZCilefehXALnHR87Ir9wUke6wJ82MpR6jLsLW4DwZDZD',
 					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
 				}
@@ -197,8 +198,7 @@ angular.module('starter.controllers', [])
 		//}, 0);
 		ionicMaterialInk.displayEffect();
 	})
-	.controller('ChatCtrl', function ($scope, $ionicScrollDelegate, $location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService, EntityService) {
-		$ionicScrollDelegate.scrollBottom();
+	.controller('ChatCtrl', function ($scope, $firebaseObject, $ionicScrollDelegate, $location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService, EntityService) {
 
 		var chatDetails = EntityService.getMessageDetails();
 		$scope.conversationId = chatDetails.conversationId;
@@ -207,40 +207,50 @@ angular.module('starter.controllers', [])
 		var userDetails = ConfigurationService.UserDetails();
 		$scope.userId = userDetails._id;
 		var userName = userDetails.first_name + " " + userDetails.last_name;
-		if (window.localStorage['messages']) {
-			var localMessages = angular.fromJson(window.localStorage['messages']);
-			var messagIndexx = common.indexOfConv(localMessages, $scope.conversationId);
-			var messageToPush = {
-				conversationId: $scope.conversationId,
-				lastMessageKey: $scope.lastMessageKey
-			}
-			if (messagIndexx == -1) {
-
-				localMessages.push(messageToPush)
-			}
-			else {
-				if (localMessages[messagIndexx].lastMessageKey !== $scope.lastMessageKey) {
-					localMessages[messagIndexx] = messageToPush;
-				}
-			}
-			window.localStorage['messages'] = angular.toJson(localMessages);
-		} else {
-			var messagesToPush = [];
-			var messageToPush = {
-				conversationId: $scope.conversationId,
-				lastMessageKey: $scope.lastMessageKey
-			}
-			messagesToPush.push(messageToPush);
-			window.localStorage['messages'] = angular.toJson(messagesToPush);
-		}
+		//if (window.localStorage['messages']) {
+		//	var localMessages = angular.fromJson(window.localStorage['messages']);
+		//	var messagIndexx = common.indexOfConv(localMessages, $scope.conversationId);
+		//	var messageToPush = {
+		//		conversationId: $scope.conversationId,
+		//		lastMessageKey: $scope.lastMessageKey
+		//	}
+		//	if (messagIndexx == -1) {
+        //
+		//		localMessages.push(messageToPush)
+		//	}
+		//	else {
+		//		if (localMessages[messagIndexx].lastMessageKey !== $scope.lastMessageKey) {
+		//			localMessages[messagIndexx] = messageToPush;
+		//		}
+		//	}
+		//	window.localStorage['messages'] = angular.toJson(localMessages);
+		//} else {
+		//	var messagesToPush = [];
+		//	var messageToPush = {
+		//		conversationId: $scope.conversationId,
+		//		lastMessageKey: $scope.lastMessageKey
+		//	}
+		//	messagesToPush.push(messageToPush);
+		//	window.localStorage['messages'] = angular.toJson(messagesToPush);
+		//}
 
 		var createrId = $scope.conversationId.split("-")[0];
 		var subjectId = $scope.conversationId.split("-")[1];
 		//var createrUser = userRef.val(createrId);
-
 		var myUrl = "https://chatoi.firebaseio.com/chats/" + $scope.userId + "/" + $scope.conversationId;
-		var ref = new Firebase(myUrl + "/messages");
-		$scope.messages = $firebaseArray(ref);
+		var otherUrl = "https://chatoi.firebaseio.com/chats/" + createrId + "/" + $scope.userId + '-' + subjectId;
+		var myMessages = new Firebase(myUrl + "/messages");
+		$scope.messages = $firebaseArray(myMessages);
+
+		var conversationUserRef = new Firebase('https://chatoi.firebaseio.com/conversationOnline/' + $scope.userDetails._id);
+		var conversationOterUserRef = new Firebase('https://chatoi.firebaseio.com/conversationOnline/' + createrId);
+		var hanleOtherMessageRead = new Firebase(otherUrl + "/unRead");
+		conversationUserRef.set({
+			conversationId: $scope.conversationId,
+
+		});
+
+
 		$timeout(function(){
 			$ionicScrollDelegate.scrollBottom();
 		},300)
@@ -248,32 +258,46 @@ angular.module('starter.controllers', [])
 		//});
 		$scope.sendMessage = function () {
 			$ionicScrollDelegate.scrollBottom();
+
 			var isFirstMessage = false;
 			if($scope.messages.length == 0){
 				isFirstMessage = true;
 			}
-			var otherUrl = "https://chatoi.firebaseio.com/chats/" + $scope.conversationId.split("-")[0] + "/" + $scope.userId + '-' + $scope.conversationId.split("-")[1];
+
+			//var otherConversaionOnline="https://chatoi.firebaseio.com/chats/" + $scope.conversationId.split("-")[0] + "/" + $scope.userId + '-' + $scope.conversationId.split("-")[1];
 			var ref2, ref1;
 			if (isFirstMessage) {
 				ref2 = new Firebase(otherUrl);
 				ref1 = new Firebase(myUrl);
+
+				var newMessageRef2 = ref2.push();
 				var newMessageRef1 = ref1.push();
 				ref1.set({
 					userName: chatDetails.userName,
 					subjectName: chatDetails.subjectName,
 					fbPhotoUrl: chatDetails.fbPhotoUrl
 				});
-
-				var newMessageRef2 = ref2.push();
 				ref2.set({
 					userName: userName,
 					subjectName: chatDetails.subjectName,
 					fbPhotoUrl: userDetails.fbPhotoUrl
 				});
 
+
+				conversationOterUserRef.on('value', function(snapshot) {
+					debugger;
+					if (snapshot.val()) {
+
+
+					}else{
+						hanleOtherMessageRead.set(true);
+					}
+
+				});
 				isFirstMessage = false;
 			}
 
+			debugger;
 			ref2 = new Firebase(otherUrl + "/messages");
 			ref1 = new Firebase(myUrl + "/messages");
 			var newMessageRef1 = ref1.push();
@@ -288,24 +312,37 @@ angular.module('starter.controllers', [])
 				{
 					body: $scope.messageContent,
 					sender: $scope.userId
-				});
+				}
+			);
 
-			var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
-			userRef.on("value", function (userSnapshot) {
-				if (userSnapshot.val() == 'offline') {
+			conversationOterUserRef.on('value', function(snapshot) {
+				if (snapshot.val()) {
+					debugger;
 
-					var message = {
-						user: createrId,
-						message: $scope.messageContent,
-						conversationId: $scope.userId + "-" + subjectId
-					}
-					NotificationService.SendMessage(message)
-						.then(function (message) {
+				}else{
 
-						}, function (err) {
-						});
+					hanleOtherMessageRead.set(true);
+					debugger
 				}
 			});
+				var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
+				userRef.on("value", function (userSnapshot) {
+					if (userSnapshot.val() == 'offline') {
+
+						var message = {
+							user: createrId,
+							message: $scope.messageContent,
+							conversationId: $scope.userId + "-" + subjectId
+						}
+						//NotificationService.SendMessage(message)
+						//	.then(function (message) {
+						//
+						//	}, function (err) {
+						//	});
+					}
+				});
+
+
 
 			delete $scope.messageContent;
 		}
