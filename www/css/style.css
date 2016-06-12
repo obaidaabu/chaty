@@ -236,3 +236,14 @@ ion-header-bar .filterHeader.title{
 .chat-profile-details span{
     font-size: 15px;
 }
+.online-offline{
+    left: 6px;
+    font-size: 16px !important;
+}
+.online-circle{
+    color: #8bc79d !important;
+}
+.offline-circle{
+    color: #C3C3C3 !important;
+
+}

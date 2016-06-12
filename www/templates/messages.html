@@ -3,12 +3,15 @@
         <div class="content has-header">
             <div class="list">
                 <a class="item item-avatar item-icon-right" ng-repeat="message in messages">
+
                     <img ng-click="goToUserProfile(message)" ng-src="{{message.fbPhotoUrl}}">
                     <div ng-click="goToChat(message)">
-                        <h2>{{message.userName}}</h2>
-                        <p>{{message.lastMessage}}</p>
+                        <h2>{{message.subjectName}}</h2>
+                        <p>{{message.userName}}: {{message.lastMessage}}</p>
                         <i ng-class="message.readMessage ? 'muted' : (!message.readMessage ? 'message-read' : 'muted')" ng-click="goToChat(message)" class="icon ion-chatbubble"></i>
                     </div>
+                    <i class="icon ion-record online-offline" ng-class="{'online-circle': message.online, 'offline-circle': !message.online}"></i>
+
 
                 </a>
 
