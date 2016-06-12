@@ -1,6 +1,14 @@
 <ion-view view-title="Subjects">
 
-    <ion-content ng-class="{expanded:isExpanded}" class="animate-fade-slide-in">
+    <ion-content ng-class="{expanded:isExpanded}" class="">
+        <ion-refresher
+                pulling-text="Pull to refresh..."
+                on-refresh="doRefresh()">
+        </ion-refresher>
+        <!--<div class="item card-item" ng-repeat="subject in subjects">-->
+            <!--<span ng-click="goToUserProfile(subject.user)" class="avatar" style="background-image: url({{subject.user.fbPhotoUrl}});"></span>-->
+
+        <!--</div>-->
         <div class="item card-item" ng-repeat="subject in subjects">
             <div class="card stable-bg ink ink-dark">
                 <div class="item item-avatar item-text-wrap">

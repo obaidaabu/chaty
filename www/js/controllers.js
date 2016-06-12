@@ -474,27 +474,39 @@ angular.module('starter.controllers', [])
 		ionicMaterialInk.displayEffect();
 	})
 
-	.controller('SubjectsCtrl', function ($scope, $state, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, SubjectService, EntityService) {
+	.controller('SubjectsCtrl', function ($scope, $state,$interval, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, SubjectService, EntityService) {
 		$scope.$parent.showHeader();
 		$scope.$parent.clearFabs();
 		$scope.isExpanded = true;
 		$scope.$parent.setExpanded(true);
 		$scope.$parent.setHeaderFab('right');
 		$scope.subjects = [];
+		$scope.doRefresh=function(){
+			$scope.$broadcast('scroll.refreshComplete');
+			SubjectService.GetSubjects(false)
+				.then(function (subjects) {
+					$scope.subjects = subjects;
+					//$timeout(function () {
+					//	ionicMaterialMotion.fadeSlideIn({
+					//		selector: '.animate-fade-slide-in .item'
+					//	});
+					//}, 200);
+				}, function (err) {
+				});
+		}
+		var stopTime = $interval($scope.doRefresh, 10000);
+		$scope.$on("$destroy", function() {
+			debugger
+			if (stopTime) {
+				$interval.cancel(stopTime);
+			}
+		});
+		$scope.doRefresh();
 		$scope.goToUserProfile = function (user) {
 			EntityService.setProfile(user);
 			$state.go("app.profile",{otherProfile: true});
 		}
-		SubjectService.GetSubjects(false)
-			.then(function (subjects) {
-				$scope.subjects = subjects;
-				$timeout(function () {
-					ionicMaterialMotion.fadeSlideIn({
-						selector: '.animate-fade-slide-in .item'
-					});
-				}, 200);
-			}, function (err) {
-			});
+
 
 		$scope.goToChat = function (subject) {
 
