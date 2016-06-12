@@ -29,9 +29,14 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             if(window.cordova && typeof window.plugins.OneSignal != 'undefined'){
                 var notificationOpenedCallback = function (jsonData) {
 
-                    var conversationId = jsonData.additionalData.conversationId;
-
-                    $state.go("chat",{conversationId: conversationId});
+                    var messageDetails = {
+                        conversationId: jsonData.additionalData.conversationId,
+                        userName: jsonData.additionalData.userName,
+                        subjectName: jsonData.additionalData.subjectName,
+                        fbPhotoUrl: jsonData.additionalData.fbPhotoUrl
+                    }
+                    EntityService.setMessageDetails(messageDetails);
+                    $state.go("app.chat",{conversationId: conversationId});
 
                 };
                 window.plugins.OneSignal.init("ee6f85c1-a2ff-4d1b-9fa6-29dd4cc306ef",

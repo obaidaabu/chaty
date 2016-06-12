@@ -204,11 +204,7 @@ angular.module('starter.services', [])
             SendMessage: function (message) {
                 var deferred = $q.defer();
                 $http.post(ConfigurationService.ServerUrl() + '/api/notification',
-                    {
-                        "user": message.user,
-                        "message": message.message,
-                        "conversationId" : message.conversationId
-                    }
+                    message
                     , {
                         headers: {
                             "access-token": ConfigurationService.UserDetails().token

@@ -196,8 +196,8 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAAZAMbMtmoBIBAFsTrAZCPfRKSrf5hPXswh7EtaA1luNnYeBuCe76unflzQpqGBaBpRwLoigwvf1HhM5ZBSMPEBR5WqmlBZCWXvFlbZBrHX9eZBPfs29VMfKQt6k8mik9dt2ooPBUpZBpWtusZADnvsxG15HkXl5ZBqsU45mzDWT4ink5sB1ZBPfhIeidVhnS6ZChg7nUFeiXE3tPtS5tKXloYY',
-					notification_token: '18662c77-ba1d-4a90-9e1b-8549a5478f5d'
+					fbToken: 'EAAZAMbMtmoBIBAGfywiAYNWheXdeVsoX7O0GKxOx1DHAjO52Y6H6bhxS5E6MyFSSLaJNTgMOC8oAOTX3El5ZCZB9ESFUXpU7XKKcjdyTLInXqDrCZCTb1ExRQKAZBGqSLmp2trDUv5t7W9ZBUXKvPEvHH6FwId0KPXm3nNWiwUZAJjwDCZCZAQLYXOoL5dZBy61JR9AtZBQzY9OD1WZAMWEBsCE8',
+					notification_token: 'ac92b0ec-117b-4c8c-87d1-12519f8f0578'
 
 				}
 
@@ -346,7 +346,10 @@ angular.module('starter.controllers', [])
 					var message = {
 						user: createrId,
 						message: $scope.messageContent,
-						conversationId: otherConversationId
+						conversationId: otherConversationId,
+						userName: $scope.chatDetails.userName,
+						subjectName: $scope.chatDetails.subjectName,
+						fbPhotoUrl: $scope.chatDetails.fbPhotoUrl
 					}
 					NotificationService.SendMessage(message)
 						.then(function (message) {
@@ -375,9 +378,12 @@ angular.module('starter.controllers', [])
 		$scope.goToChat = function (message) {
 			var messageDetails = {
 				conversationId: message.conversationId,
-				lastMessageKey: message.lastMessageKey
-
+				lastMessageKey: message.lastMessageKey,
+				fbPhotoUrl: message.fbPhotoUrl,
+				userName: message.userName,
+				subjectName: message.subjectName
 			}
+			debugger
 			EntityService.setMessageDetails(messageDetails);
 			$state.go('app.chat', {conversationId: message.conversationId, lastMessageKey: message.lastMessageKey})
 		}
