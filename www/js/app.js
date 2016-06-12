@@ -117,7 +117,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 				    //controller: function ($timeout) {
 					 //
 				    //}
-				    template: '<button ng-controller="FabCtrl" ng-click="saveSubject()" id="fab-friends" class="add-subject-btn button button-fab button-fab-top-right button-energized-900"><i class="icon ion-leaf"></i></button>'
+				    template: '<button ng-controller="FabCtrl" ng-click="saveSubject()" id="fab-friends" class="add-subject-btn button button-fab button-fab-top-right button-energized-900"><i class="icon ion-checkmark"></i></button>'
 
 			    }
 		    }
