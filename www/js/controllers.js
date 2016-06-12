@@ -158,14 +158,15 @@ angular.module('starter.controllers', [])
 
 			if (window.cordova) {
 				UserService.FBlogin().then(function success(s) {
-
 					if (window.cordova && typeof window.plugins.OneSignal != 'undefined') {
 						window.plugins.OneSignal.getIds(function (ids) {
 							window.localStorage['notification_token'] = ids.userId;
 
 						});
 					}
-					var fbData = angular.fromJson(window.localStorage['fbData']);
+
+					window.localStorage['fbData'] = angular.toJson(s.authResponse);
+					var fbData = s.authResponse;
 					var user = {
 						fbToken: fbData['accessToken'],
 						notification_token: window.localStorage['notification_token']
@@ -195,7 +196,7 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAACEdEose0cBAEFojbGL0sT14oomuPY7G6zfAoOa1msYKTuNdt4E6CGP7XuyiwnqTIwxMZCQOPZBZBv6mnOKLryVZAAvKGLo0fQc8wWDvT5JnC4RGPQBRZCi15a9yEaS4gcyZCilefehXALnHR87Ir9wUke6wJ82MpR6jLsLW4DwZDZD',
+					fbToken: 'EAAZAMbMtmoBIBAOZCRMnvNYO7cBIVqpc6QUlKWVr1GVZBEjxEEWaXJb4n1ZCkj3I0jtBo0G4zq0WPwG760yybZBW2n6Sr4ORvIqBEtE7D6GZCE7m3NjAzfyEhw5GH4NmbZA5JlC3RN2ZCjXcEYsoRdokw8Lk2NmDgMZC5ZBzxEVVfuGqkahY4PpmmVETkMIKLOPTZCgfsaSLnlkLj58EpyvZB31O',
 					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
 
 				}
@@ -235,38 +236,13 @@ angular.module('starter.controllers', [])
 		var userDetails = ConfigurationService.UserDetails();
 		$scope.userId = userDetails._id;
 		var userName = userDetails.first_name + " " + userDetails.last_name;
-		//if (window.localStorage['messages']) {
-		//	var localMessages = angular.fromJson(window.localStorage['messages']);
-		//	var messagIndexx = common.indexOfConv(localMessages, $scope.conversationId);
-		//	var messageToPush = {
-		//		conversationId: $scope.conversationId,
-		//		lastMessageKey: $scope.lastMessageKey
-		//	}
-		//	if (messagIndexx == -1) {
-        //
-		//		localMessages.push(messageToPush)
-		//	}
-		//	else {
-		//		if (localMessages[messagIndexx].lastMessageKey !== $scope.lastMessageKey) {
-		//			localMessages[messagIndexx] = messageToPush;
-		//		}
-		//	}
-		//	window.localStorage['messages'] = angular.toJson(localMessages);
-		//} else {
-		//	var messagesToPush = [];
-		//	var messageToPush = {
-		//		conversationId: $scope.conversationId,
-		//		lastMessageKey: $scope.lastMessageKey
-		//	}
-		//	messagesToPush.push(messageToPush);
-		//	window.localStorage['messages'] = angular.toJson(messagesToPush);
-		//}
 
 		var createrId = $scope.conversationId.split("-")[0];
 		var subjectId = $scope.conversationId.split("-")[1];
 		//var createrUser = userRef.val(createrId);
+		var otherConversationId = $scope.userId + '-' + subjectId;
 		var myUrl = "https://chatoi.firebaseio.com/chats/" + $scope.userId + "/" + $scope.conversationId;
-		var otherUrl = "https://chatoi.firebaseio.com/chats/" + createrId + "/" + $scope.userId + '-' + subjectId;
+		var otherUrl = "https://chatoi.firebaseio.com/chats/" + createrId + "/" + otherConversationId;
 		var myMessages = new Firebase(myUrl + "/messages");
 		$scope.messages = $firebaseArray(myMessages);
 
@@ -318,6 +294,11 @@ angular.module('starter.controllers', [])
 				aa.$loaded(function(value){
 					if(!value.conversationId){
 						hanleOtherMessageRead.set(false);
+					}else if (value.conversationId !== otherConversationId){
+						hanleOtherMessageRead.set(false);
+					}
+					else{
+						hanleOtherMessageRead.set(true);
 					}
 
 				})
@@ -346,8 +327,12 @@ angular.module('starter.controllers', [])
 			aa.$loaded(function(value){
 				if(!value.conversationId){
 					hanleOtherMessageRead.set(false);
+				}else if (value.conversationId !== otherConversationId){
+					hanleOtherMessageRead.set(false);
 				}
-
+				else{
+					hanleOtherMessageRead.set(true);
+				}
 			})
 
 			var userRef = new Firebase('https://chatoi.firebaseio.com/presence/' + createrId);
@@ -357,13 +342,13 @@ angular.module('starter.controllers', [])
 					var message = {
 						user: createrId,
 						message: $scope.messageContent,
-						conversationId: $scope.userId + "-" + subjectId
+						conversationId: otherConversationId
 					}
-					//NotificationService.SendMessage(message)
-					//	.then(function (message) {
-					//
-					//	}, function (err) {
-					//	});
+					NotificationService.SendMessage(message)
+						.then(function (message) {
+
+						}, function (err) {
+						});
 				}
 			});
 
@@ -402,7 +387,7 @@ angular.module('starter.controllers', [])
 				});
 
 		}
-
+		ionicMaterialInk.displayEffect();
 	})
 
 	.controller('ProfileCtrl', function ($scope, $rootScope, $ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService, EntityService) {

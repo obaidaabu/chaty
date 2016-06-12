@@ -8,7 +8,7 @@ angular.module('starter.services', [])
             ServerUrl: function () {
                 // return "https://chatad.herokuapp.com";
                 // return "http://10.0.0.3:3000";
-                return "http://192.168.1.21:3000";
+                return "http://192.168.1.14:3000";
             },
             UserDetails: function(){
 
@@ -170,16 +170,55 @@ angular.module('starter.services', [])
                 });
                 return deferred.promise;
             },
+            CheckUser: function (userId) {
+                var deferred = $q.defer();
+                $http.get(ConfigurationService.ServerUrl() + '/api/users', {
+                    headers: {
+                        "access-token": ConfigurationService.UserDetails().token
+                    }
+                }).success(function (data) {
+                    deferred.resolve(data);
+                }).error(function (msg, code) {
+                    deferred.reject(msg);
+                    //   $log.error(msg, code);
+                });
+                return deferred.promise;
+            },
             FBlogin: function () {
                 var deferred = $q.defer();
                 $cordovaFacebook.login(["public_profile", "email", "user_friends","user_birthday"]).then(
                     function success(result) {
-                        window.localStorage['fbData'] = angular.toJson(result.authResponse);
+                        deferred.resolve(result);
                     },
                     function error(reason) {
                         deferred.reject("Failed to login to facebook");
                     }
                 );
+                return deferred.promise;
+            }
+        }
+    })
+    .factory('NotificationService', function ($http, $log, $q, ConfigurationService) {
+        return {
+
+            SendMessage: function (message) {
+                var deferred = $q.defer();
+                $http.post(ConfigurationService.ServerUrl() + '/api/notification',
+                    {
+                        "user": message.user,
+                        "message": message.message,
+                        "conversationId" : message.conversationId
+                    }
+                    , {
+                        headers: {
+                            "access-token": ConfigurationService.UserDetails().token
+                        }
+                    }).success(function (data) {
+                        deferred.resolve(data);
+                    }).error(function (msg, code) {
+                        deferred.reject(msg);
+                        //   $log.error(msg, code);
+                    });
                 return deferred.promise;
             }
         }

@@ -5,11 +5,11 @@
             <div class="card stable-bg ink ink-dark">
                 <div class="item item-avatar item-text-wrap">
                     <span ng-click="goToUserProfile(subject.user)" class="avatar" style="background-image: url({{subject.user.fbPhotoUrl}});"></span>
-                    <strong>
+                    <h2 ng-click="goToChat(subject)">
                         {{subject.title}}
-                    </strong>
+                    </h2>
                     <i ng-click="goToChat(subject)" class="subject-new-message icon pull-right ion-chatbubble-working positive"></i>
-                    <p>{{subject.description}}</p>
+                    <p ng-click="goToChat(subject)">{{subject.description}}</p>
 
                     <div class="card-footer text-right">
                         <i class="icon ion-chatbubbles positive"></i> 6

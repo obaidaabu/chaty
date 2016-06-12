@@ -6,7 +6,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.directives', 'ionic-material', 'ionMdInput', 'firebase', 'ngCordova', 'angularMoment'])
 
-	.run(function ($ionicPlatform, $state) {
+	.run(function ($ionicPlatform, $state, UserService) {
         $ionicPlatform.on('pause', function() {
             Firebase.goOffline();
 
@@ -27,58 +27,65 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 				StatusBar.styleDefault();
 			}
 
+
 			//window.localStorage.clear();
 			if (window.localStorage['user']) {
-				var user = angular.fromJson(window.localStorage['user']);
-				var ref = new Firebase("https://chatoi.firebaseio.com");
+                UserService.CheckUser()
+                    .then(function (user) {
+                        debugger
+                        if(user.isNeedLogin === false){
 
-				ref.authWithCustomToken(user.fireToken, function (error, authData) {
+                            var user = angular.fromJson(window.localStorage['user']);
+                            var ref = new Firebase("https://chatoi.firebaseio.com");
 
-					if (error) {
-						console.log("Login Failed!", error);
-					} else {
-						$state.go("app.subjects");
-					}
-				});
+                            ref.authWithCustomToken(user.fireToken, function (error, authData) {
 
-			}
+                                if (error) {
+                                    console.log("Login Failed!", error);
+                                } else {
+                                    $state.go("app.subjects");
+                                }
+                            });
+                        }
+                        else{
+                            $state.go("login");
+                        }
+                    }, function (err) {
+                    });
+			}else{
+                $state.go("login");
+            }
 		});
 	})
 
-.config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
+    .config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
+        $ionicConfigProvider.views.maxCache(0);
 
-    // Turn off caching for demo simplicity's sake
-    $ionicConfigProvider.views.maxCache(0);
 
-    /*
-    // Turn off back button text
-    $ionicConfigProvider.backButton.previousTitleText(false);
-    */
+        $stateProvider.state('app', {
+            url: '/app',
+            abstract: true,
+            templateUrl: 'templates/menu.html',
+            controller: 'AppCtrl'
+        })
 
-    $stateProvider.state('app', {
-        url: '/app',
-        abstract: true,
-        templateUrl: 'templates/menu.html',
-        controller: 'AppCtrl'
-    })
-
-    .state('app.subjects', {
-        url: '/subjects',
-        views: {
-            'menuContent': {
-                templateUrl: 'templates/subjects.html',
-                controller: 'SubjectsCtrl'
-            },
-            'fabContent': {
-                template: '<button ng-controller="FabCtrl" ng-click="filter()"  id="fab-friends" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-ios-settings"></i></button>',
-                controller: function ($timeout) {
-                    $timeout(function () {
-                        document.getElementById('fab-friends').classList.toggle('on');
-                    }, 900);
+        .state('app.subjects', {
+            url: '/subjects',
+            views: {
+                'menuContent': {
+                    templateUrl: 'templates/subjects.html',
+                    controller: 'SubjectsCtrl'
+                },
+                'fabContent': {
+                    template: '<button ng-controller="FabCtrl" ng-click="filter()"  id="fab-friends" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-ios-settings"></i></button>',
+                    controller: function ($timeout) {
+                        $timeout(function () {
+                            document.getElementById('fab-friends').classList.toggle('on');
+                        }, 900);
+                    }
                 }
             }
-        }
-    })
+        })
 	    .state('app.addSubject', {
 		    url: '/addSubject',
 		    views: {
@@ -97,18 +104,23 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 		    }
 	    })
 
-    .state('app.messages', {
-        url: '/messages',
-        views: {
-            'menuContent': {
-                templateUrl: 'templates/messages.html',
-                controller: 'MessagesCtrl'
-            },
-            'fabContent': {
-                template: ''
+        .state('app.messages', {
+            url: '/messages',
+            views: {
+                'menuContent': {
+                    templateUrl: 'templates/messages.html',
+                    controller: 'MessagesCtrl'
+                },
+                'fabContent': {
+                    template: '<button ui-sref="app.subjects" id="fab-subjects" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-android-list"></i></button>',
+                    controller: function ($timeout) {
+                        $timeout(function () {
+                            document.getElementById('fab-subjects').classList.toggle('on');
+                        }, 900);
+                    }
+                }
             }
-        }
-    })
+        })
         .state('app.chat', {
             url: '/chat/:conversationId/:lastMessageKey/:userName/:subjectName',
             views: {
@@ -118,45 +130,43 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 }
             }
         })
-    .state('app.gallery', {
-        url: '/gallery',
-        views: {
-            'menuContent': {
-                templateUrl: 'templates/gallery.html',
-                controller: 'GalleryCtrl'
-            },
-            'fabContent': {
-                template: '<button id="fab-gallery" class="button button-fab button-fab-top-right expanded button-energized-900 drop"><i class="icon ion-heart"></i></button>',
-                controller: function ($timeout) {
-                    $timeout(function () {
-                        document.getElementById('fab-gallery').classList.toggle('on');
-                    }, 600);
+        .state('app.gallery', {
+            url: '/gallery',
+            views: {
+                'menuContent': {
+                    templateUrl: 'templates/gallery.html',
+                    controller: 'GalleryCtrl'
+                },
+                'fabContent': {
+                    template: '<button  id="fab-subjects" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-ios-settings"></i></button>',
+                    controller: function ($timeout) {
+                        $timeout(function () {
+                            document.getElementById('fab-subjects').classList.toggle('on');
+                        }, 900);
+                    }
                 }
             }
-        }
-    })
+        })
 
-    .state('login', {
-        url: '/login',
+        .state('login', {
+            url: '/login',
+            templateUrl: 'templates/login.html',
+            controller: 'LoginCtrl'
 
-                templateUrl: 'templates/login.html',
-                controller: 'LoginCtrl'
+        })
 
-    })
-
-    .state('app.profile', {
-        url: '/profile',
-        views: {
-            'menuContent': {
-                templateUrl: 'templates/profile.html',
-                controller: 'ProfileCtrl'
-            },
-            'fabContent': {
-                template: '<button ng-controller="FabCtrl" ng-click="createSubject()" id="fab-profile" class="add-subject-btn button button-fab button-fab-bottom-right button-energized-900"><i class="icon ion-plus"></i></button>'
+        .state('app.profile', {
+            url: '/profile',
+            views: {
+                'menuContent': {
+                    templateUrl: 'templates/profile.html',
+                    controller: 'ProfileCtrl'
+                },
+                'fabContent': {
+                    template: '<button ng-controller="FabCtrl" ng-click="createSubject()" id="fab-profile" class="add-subject-btn button button-fab button-fab-bottom-right button-energized-900"><i class="icon ion-plus"></i></button>'
+                }
             }
-        }
-    })
-    ;
+        });
 
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/login');

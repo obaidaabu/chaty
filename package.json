@@ -15,6 +15,14 @@
     "shelljs": "^0.3.0"
   },
   "cordovaPlugins": [
+    {
+      "id": "cordova-plugin-facebook4",
+      "locator": "cordova-plugin-facebook4",
+      "variables": {
+        "APP_ID": "1772880012943378",
+        "APP_NAME": "chaty"
+      }
+    },
     "cordova-plugin-device",
     "cordova-plugin-console",
     "cordova-plugin-whitelist",
@@ -23,13 +31,12 @@
     "ionic-plugin-keyboard",
     "onesignal-cordova-plugin",
     {
-      "id": "cordova-plugin-facebook4",
-      "locator": "cordova-plugin-facebook4",
-      "variables": {
-        "APP_ID": "1772880012943378",
-        "APP_NAME": "chaty"
-      }
-    }
+      "locator": "https://github.com/pushandplay/cordova-plugin-apprate.git",
+      "id": "cordova-plugin-apprate"
+    },
+    "cordova-plugin-dialogs",
+    "cordova-plugin-globalization",
+    "cordova-plugin-inappbrowser"
   ],
   "cordovaPlatforms": [
     {
