@@ -26,13 +26,24 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 				// org.apache.cordova.statusbar required
 				StatusBar.styleDefault();
 			}
+            if(window.cordova && typeof window.plugins.OneSignal != 'undefined'){
+                var notificationOpenedCallback = function (jsonData) {
 
+                    var conversationId = jsonData.additionalData.conversationId;
+
+                    $state.go("chat",{conversationId: conversationId});
+
+                };
+                window.plugins.OneSignal.init("ee6f85c1-a2ff-4d1b-9fa6-29dd4cc306ef",
+                    { googleProjectNumber: "238478083352" },
+                    notificationOpenedCallback);
+                window.plugins.OneSignal.enableNotificationsWhenActive(false);
+            }
 
 			//window.localStorage.clear();
 			if (window.localStorage['user']) {
                 UserService.CheckUser()
                     .then(function (user) {
-                        debugger
                         if(user.isNeedLogin === false){
 
                             var user = angular.fromJson(window.localStorage['user']);
@@ -77,7 +88,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                     controller: 'SubjectsCtrl'
                 },
                 'fabContent': {
-                    template: '<button ng-controller="FabCtrl" ng-click="filter()"  id="fab-friends" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-ios-settings"></i></button>',
+                    template: '<button ng-controller="FabCtrl" ng-click="filter()"  id="fab-friends" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-android-options"></i></button>',
                     controller: function ($timeout) {
                         $timeout(function () {
                             document.getElementById('fab-friends').classList.toggle('on');
@@ -111,14 +122,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                     templateUrl: 'templates/messages.html',
                     controller: 'MessagesCtrl'
                 },
-                'fabContent': {
-                    template: '<button ui-sref="app.subjects" id="fab-subjects" class="messages-btn button button-fab button-fab-top-right expanded button-energized-900 spin"><i class="icon ion-android-list"></i></button>',
-                    controller: function ($timeout) {
-                        $timeout(function () {
-                            document.getElementById('fab-subjects').classList.toggle('on');
-                        }, 900);
-                    }
-                }
+                'fabContent': ''
+
             }
         })
         .state('app.chat', {
@@ -156,7 +161,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         })
 
         .state('app.profile', {
-            url: '/profile',
+            url: '/profile/:otherProfile',
             views: {
                 'menuContent': {
                     templateUrl: 'templates/profile.html',
@@ -168,6 +173,4 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             }
         });
 
-    // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('/login');
 });

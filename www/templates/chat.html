@@ -1,4 +1,4 @@
-<ion-view view-title="Chat">
+<ion-view view-title="{{chatDetails.userName}} , {{chatDetails.subjectName}}">
     <ion-content>
         <div class="content has-header">
             <div ng-class="message.sender==userId ? 'sender-div' : (message.sender!=userId ? 'reciver-div' : 'sender-div')" ng-repeat="message in messages"

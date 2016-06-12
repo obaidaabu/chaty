@@ -196,8 +196,8 @@ angular.module('starter.controllers', [])
 				})
 			} else {
 				var user = {
-					fbToken: 'EAAZAMbMtmoBIBAOZCRMnvNYO7cBIVqpc6QUlKWVr1GVZBEjxEEWaXJb4n1ZCkj3I0jtBo0G4zq0WPwG760yybZBW2n6Sr4ORvIqBEtE7D6GZCE7m3NjAzfyEhw5GH4NmbZA5JlC3RN2ZCjXcEYsoRdokw8Lk2NmDgMZC5ZBzxEVVfuGqkahY4PpmmVETkMIKLOPTZCgfsaSLnlkLj58EpyvZB31O',
-					notification_token: '13c3418b-0d3d-4bf0-a797-90eac633c7e1'
+					fbToken: 'EAAZAMbMtmoBIBAFsTrAZCPfRKSrf5hPXswh7EtaA1luNnYeBuCe76unflzQpqGBaBpRwLoigwvf1HhM5ZBSMPEBR5WqmlBZCWXvFlbZBrHX9eZBPfs29VMfKQt6k8mik9dt2ooPBUpZBpWtusZADnvsxG15HkXl5ZBqsU45mzDWT4ink5sB1ZBPfhIeidVhnS6ZChg7nUFeiXE3tPtS5tKXloYY',
+					notification_token: '18662c77-ba1d-4a90-9e1b-8549a5478f5d'
 
 				}
 
@@ -227,11 +227,11 @@ angular.module('starter.controllers', [])
 		//}, 0);
 		ionicMaterialInk.displayEffect();
 	})
-	.controller('ChatCtrl', function ($scope, $firebaseObject, $ionicScrollDelegate, $location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService, EntityService) {
+	.controller('ChatCtrl', function ($scope, $firebaseObject, $ionicScrollDelegate, $location, $anchorScroll, $state, $stateParams, $timeout, $firebaseArray, ionicMaterialInk, ionicMaterialMotion, ConfigurationService, EntityService,NotificationService) {
 
-		var chatDetails = EntityService.getMessageDetails();
-		$scope.conversationId = chatDetails.conversationId;
-		$scope.lastMessageKey = chatDetails.lastMessageKey;
+		$scope.chatDetails = EntityService.getMessageDetails();
+		$scope.conversationId = $scope.chatDetails.conversationId;
+		$scope.lastMessageKey = $scope.chatDetails.lastMessageKey;
 		$scope.messages = [];
 		var userDetails = ConfigurationService.UserDetails();
 		$scope.userId = userDetails._id;
@@ -244,7 +244,11 @@ angular.module('starter.controllers', [])
 		var myUrl = "https://chatoi.firebaseio.com/chats/" + $scope.userId + "/" + $scope.conversationId;
 		var otherUrl = "https://chatoi.firebaseio.com/chats/" + createrId + "/" + otherConversationId;
 		var myMessages = new Firebase(myUrl + "/messages");
-		$scope.messages = $firebaseArray(myMessages);
+		var loadedMessages = $firebaseArray(myMessages);
+		loadedMessages.$loaded(function(msgs){
+			$scope.messages = $firebaseArray(myMessages);
+		})
+
 
 		var conversationUserRef = new Firebase('https://chatoi.firebaseio.com/conversationOnline/' + $scope.userDetails._id);
 		var conversationOterUserRef = new Firebase('https://chatoi.firebaseio.com/conversationOnline/' + createrId);
@@ -278,15 +282,15 @@ angular.module('starter.controllers', [])
 				var newMessageRef2 = ref2.push();
 				var newMessageRef1 = ref1.push();
 				ref1.set({
-					userName: chatDetails.userName,
-					subjectName: chatDetails.subjectName,
-					fbPhotoUrl: chatDetails.fbPhotoUrl,
+					userName: $scope.chatDetails.userName,
+					subjectName: $scope.chatDetails.subjectName,
+					fbPhotoUrl: $scope.chatDetails.fbPhotoUrl,
 					read: true
 
 				});
 				ref2.set({
 					userName: userName,
-					subjectName: chatDetails.subjectName,
+					subjectName: $scope.chatDetails.subjectName,
 					fbPhotoUrl: userDetails.fbPhotoUrl
 				});
 
@@ -382,7 +386,7 @@ angular.module('starter.controllers', [])
 			UserService.GetUser(createrId)
 				.then(function (user) {
 					EntityService.setProfile(user);
-					$state.go("app.profile");
+					$state.go("app.profile",{otherProfile: true});
 				}, function (err) {
 				});
 
@@ -390,7 +394,7 @@ angular.module('starter.controllers', [])
 		ionicMaterialInk.displayEffect();
 	})
 
-	.controller('ProfileCtrl', function ($scope, $rootScope, $ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService, EntityService) {
+	.controller('ProfileCtrl', function ($scope, $state, $rootScope, $ionicPopup, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, ConfigurationService, SubjectService, EntityService) {
 		$scope.$parent.showHeader();
 		$scope.$parent.clearFabs();
 		$scope.isExpanded = false;
@@ -406,23 +410,22 @@ angular.module('starter.controllers', [])
 				}, function (err) {
 				});
 		}
-
+		$scope.displayDelete = true;
+		var otherProfile = $state.params.otherProfile;
 		function renderSubjectList() {
 			var otherUser = EntityService.getOtherProfile();
-			if (otherUser) {
+			if (otherProfile) {
+				document.getElementById("fab-profile").style.display = "none";
+				$scope.displayDelete = false;
 				$scope.userProfile = otherUser;
 				SubjectService.GetSubjects(true, otherUser._id)
 					.then(function (subjects) {
 						$scope.subjects = subjects;
 						$scope.blinds();
-						//$timeout(function () {
-						//	ionicMaterialMotion.fadeSlideInRight({
-						//		startVelocity: 3000
-						//	});
-						//}, 700);
 					}, function (err) {
 					});
 			} else {
+				$scope.displayDelete = true;
 				SubjectService.GetSubjects(true)
 					.then(function (subjects) {
 						$scope.subjects = subjects;
@@ -474,7 +477,7 @@ angular.module('starter.controllers', [])
 		$scope.subjects = [];
 		$scope.goToUserProfile = function (user) {
 			EntityService.setProfile(user);
-			$state.go("app.profile");
+			$state.go("app.profile",{otherProfile: true});
 		}
 		SubjectService.GetSubjects(false)
 			.then(function (subjects) {
