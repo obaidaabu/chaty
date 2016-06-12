@@ -200,6 +200,9 @@ ion-header-bar .filterHeader.title{
 .new-Messages-dot:before{
     font-size: 14px !important;
 }
+.ion-checkmark:before{
+    color: white !important;
+}
 .checkbox input:checked:before, .checkbox input:checked + .checkbox-icon:before {
     background: #1C5896;
     border-color: #1C5896;

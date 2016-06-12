@@ -42,4 +42,5 @@
         <variable name="APP_ID" value="1772880012943378" />
         <variable name="APP_NAME" value="chaty" />
     </plugin>
+    <engine name="android" spec="~5.1.1" />
 </widget>
