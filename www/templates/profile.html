@@ -14,8 +14,7 @@
 
         <h4 class="content padding double-padding-x">Subjects</h4>
         <ion-list class="animate-blinds">
-            <ion-item nav-clear menu-close class="item-icon-right item-avatar " ng-repeat="subject in subjects">
-                <img src="img/jon-snow.jpg">
+            <ion-item nav-clear menu-close class="item-icon-right " ng-repeat="subject in subjects">
                 <h2>{{subject.title}}</h2>
                 <p>{{subject.description}}</p>
                 <i ng-show="displayDelete"  ng-click="deleteSubject(subject)" class="icon ion-android-cancel muted"></i>
