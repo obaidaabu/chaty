@@ -6,7 +6,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.directives', 'ionic-material', 'ionMdInput', 'firebase', 'ngCordova', 'angularMoment'])
 
-	.run(function ($ionicPlatform, $state, UserService) {
+	.run(function ($ionicPlatform, $state, UserService,EntityService) {
         $ionicPlatform.on('pause', function() {
             Firebase.goOffline();
 
@@ -36,7 +36,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                         fbPhotoUrl: jsonData.additionalData.fbPhotoUrl
                     }
                     EntityService.setMessageDetails(messageDetails);
-                    $state.go("app.chat",{conversationId: conversationId});
+                    $state.go("app.chat",{conversationId: jsonData.additionalData.conversationId});
 
                 };
                 window.plugins.OneSignal.init("ee6f85c1-a2ff-4d1b-9fa6-29dd4cc306ef",
@@ -132,7 +132,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             }
         })
         .state('app.chat', {
-            url: '/chat/:conversationId/:lastMessageKey/:userName/:subjectName',
+            url: '/chat/:conversationId/:userName/:subjectName',
             views: {
                 'menuContent': {
                     templateUrl: 'templates/chat.html',

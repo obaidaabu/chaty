@@ -231,7 +231,6 @@ angular.module('starter.controllers', [])
 
 		$scope.chatDetails = EntityService.getMessageDetails();
 		$scope.conversationId = $scope.chatDetails.conversationId;
-		$scope.lastMessageKey = $scope.chatDetails.lastMessageKey;
 		$scope.messages = [];
 		var userDetails = ConfigurationService.UserDetails();
 		$scope.userId = userDetails._id;
@@ -378,14 +377,12 @@ angular.module('starter.controllers', [])
 		$scope.goToChat = function (message) {
 			var messageDetails = {
 				conversationId: message.conversationId,
-				lastMessageKey: message.lastMessageKey,
 				fbPhotoUrl: message.fbPhotoUrl,
 				userName: message.userName,
 				subjectName: message.subjectName
 			}
-			debugger
 			EntityService.setMessageDetails(messageDetails);
-			$state.go('app.chat', {conversationId: message.conversationId, lastMessageKey: message.lastMessageKey})
+			$state.go('app.chat', {conversationId: message.conversationId})
 		}
 		$scope.goToUserProfile = function (message) {
 			var createrId = message.conversationId.split("-")[0];
@@ -496,7 +493,6 @@ angular.module('starter.controllers', [])
 		}
 		var stopTime = $interval($scope.doRefresh, 10000);
 		$scope.$on("$destroy", function() {
-			debugger
 			if (stopTime) {
 				$interval.cancel(stopTime);
 			}

@@ -92,6 +92,7 @@ p {
     padding: 10px !important;
     border-radius: 5px ;
     margin-left: 10px;
+    height: 42px !important;
 }
 
 
@@ -210,4 +211,28 @@ ion-header-bar .filterHeader.title{
 .ion-checkmark:before {
     content: "\f122";
     color: #1C5896;
+}
+.bar.bar-stable.bar-footer{
+    height: 54px !important;
+}
+.has-footer{
+    bottom: 54px !important;
+}
+.ion-android-send{
+    font-size: 23px !important;
+}
+.platform-android .bar .title{
+    width: 80% !important;
+}
+.chat-profile-image{
+    width: 36px;
+    border-radius: 20px;
+}
+.chat-profile-details{
+    position: absolute;
+    top: 0;
+    left: 17%;
+}
+.chat-profile-details span{
+    font-size: 15px;
 }
