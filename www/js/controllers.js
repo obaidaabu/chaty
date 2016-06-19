@@ -57,8 +57,7 @@ angular.module('starter.controllers', [])
 		$scope.updateUserDetails = function () {
 
 			var user = {
-				fbToken: $scope.userDetails.fbToken,
-				notification_token: $scope.userDetails.notification_token
+				fbToken: $scope.userDetails.fbToken
 			}
 			UserService.CreateUser(user)
 				.then(function (user) {
@@ -154,24 +153,19 @@ angular.module('starter.controllers', [])
 	})
 
 	.controller('LoginCtrl', function ($scope, $timeout, $stateParams, ionicMaterialInk, UserService, $state) {
+
 		$scope.fbLogin = function () {
 
 			if (window.cordova) {
 				UserService.FBlogin().then(function success(s) {
-					if (window.cordova && typeof window.plugins.OneSignal != 'undefined') {
-						window.plugins.OneSignal.getIds(function (ids) {
-							window.localStorage['notification_token'] = ids.userId;
 
-						});
-					}
 
 					window.localStorage['fbData'] = angular.toJson(s.authResponse);
 					var fbData = s.authResponse;
-					var user = {
-						fbToken: fbData['accessToken'],
-						notification_token: window.localStorage['notification_token']
-					}
 
+					var user = {
+						fbToken: fbData['accessToken']
+					}
 					UserService.CreateUser(user)
 						.then(function (user) {
 							window.localStorage['user'] = angular.toJson(user);
@@ -471,13 +465,30 @@ angular.module('starter.controllers', [])
 		ionicMaterialInk.displayEffect();
 	})
 
-	.controller('SubjectsCtrl', function ($scope, $state,$interval, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, SubjectService, EntityService) {
+	.controller('SubjectsCtrl', function ($scope, $state,$interval, $stateParams, $timeout, ionicMaterialMotion, ionicMaterialInk, SubjectService, EntityService, UserService) {
 		$scope.$parent.showHeader();
 		$scope.$parent.clearFabs();
 		$scope.isExpanded = true;
 		$scope.$parent.setExpanded(true);
 		$scope.$parent.setHeaderFab('right');
 		$scope.subjects = [];
+		if (window.cordova && typeof window.plugins.OneSignal != 'undefined' && !window.localStorage['notification_token']) {
+			$timeout(function () {
+				window.plugins.OneSignal.getIds(function (ids) {
+
+					UserService.RegisterNotification(ids.userId)
+						.then(function (userToken) {
+							window.localStorage['notification_token'] = userToken;
+							//$timeout(function () {
+							//	ionicMaterialMotion.fadeSlideIn({
+							//		selector: '.animate-fade-slide-in .item'
+							//	});
+							//}, 200);
+						}, function (err) {
+						});
+				});
+			}, 5000)
+		}
 		$scope.doRefresh=function(){
 			$scope.$broadcast('scroll.refreshComplete');
 			SubjectService.GetSubjects(false)

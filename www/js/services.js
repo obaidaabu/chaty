@@ -8,7 +8,7 @@ angular.module('starter.services', [])
             ServerUrl: function () {
                  return "https://chatad.herokuapp.com";
                 // return "http://10.0.0.3:3000";
-               // return "http://192.168.1.14:3000";
+                //return "http://192.168.1.14:3000";
             },
             UserDetails: function(){
 
@@ -191,11 +191,31 @@ angular.module('starter.services', [])
                         deferred.resolve(result);
                     },
                     function error(reason) {
-                        deferred.reject("Failed to login to facebook");
+                        alert(JSON.stringify(reason))
+                        deferred.reject(reason);
                     }
                 );
                 return deferred.promise;
-            }
+            },
+            RegisterNotification: function (token) {
+                var deferred = $q.defer();
+                $http.post(ConfigurationService.ServerUrl() + '/api/users/notification',
+                    {
+                        "notification_token": token
+                    },
+                    {
+                        headers: {
+                            "access-token": ConfigurationService.UserDetails().token
+                        }
+                    }
+                ).success(function (data) {
+                        deferred.resolve(data);
+                    }).error(function (msg, code) {
+                        deferred.reject(msg);
+                        //   $log.error(msg, code);
+                    });
+                return deferred.promise;
+            },
         }
     })
     .factory('NotificationService', function ($http, $log, $q, ConfigurationService) {
